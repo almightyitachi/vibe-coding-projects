@@ -7,14 +7,25 @@ import { STATUS_META, STATUS_ORDER } from "@/lib/domain";
 import { TaskCard } from "./TaskCard";
 import { StatusIcon } from "@/components/ui/indicators";
 import { useUIStore } from "@/hooks/useUIStore";
+import { useTasks } from "@/hooks/useTaskStore";
 import { cn } from "@/lib/utils";
 
-/** Kanban board with drag-and-drop between the six workflow columns. */
-export function Board({ initialTasks, filter }: { initialTasks: Task[]; filter?: (t: Task) => boolean }) {
-  const [tasks, setTasks] = useState(initialTasks);
+/**
+ * Kanban board over the shared task store. Drag-and-drop between the six
+ * workflow columns persists (store + localStorage). `tasks` is the live,
+ * already-scoped list from the parent; `filter` narrows the view only.
+ */
+export function Board({
+  tasks, filter, createDefaults,
+}: {
+  tasks: Task[];
+  filter?: (t: Task) => boolean;
+  createDefaults?: { projectId?: string; sprintId?: string };
+}) {
+  const { moveTask } = useTasks();
   const [dragId, setDragId] = useState<string | null>(null);
   const [overCol, setOverCol] = useState<TaskStatus | null>(null);
-  const { setCreateOpen } = useUIStore();
+  const { setCreateOpen, pushToast } = useUIStore();
 
   const byStatus = useMemo(() => {
     const map = new Map<TaskStatus, Task[]>();
@@ -28,7 +39,11 @@ export function Board({ initialTasks, filter }: { initialTasks: Task[]; filter?:
 
   const drop = (status: TaskStatus) => {
     if (!dragId) return;
-    setTasks((prev) => prev.map((t) => (t.id === dragId ? { ...t, status } : t)));
+    const task = tasks.find((t) => t.id === dragId);
+    if (task && task.status !== status) {
+      moveTask(dragId, status);
+      pushToast(`${dragId} moved to ${STATUS_META[status].label}`);
+    }
     setDragId(null);
     setOverCol(null);
   };
@@ -46,17 +61,17 @@ export function Board({ initialTasks, filter }: { initialTasks: Task[]; filter?:
             onDrop={() => drop(status)}
             className={cn(
               "flex w-72 shrink-0 flex-col rounded-xl transition-colors",
-              overCol === status && dragId ? "bg-brand-subtle/40" : "bg-bg-subtle/60",
+              overCol === status && dragId ? "bg-brand-subtle/50" : "bg-bg-subtle/60",
             )}
           >
             <div className="flex items-center justify-between px-3 py-2.5">
               <div className="flex items-center gap-2">
                 <StatusIcon status={status} />
                 <span className="text-sm font-medium">{meta.label}</span>
-                <span className="text-xs text-fg-subtle">{list.length}</span>
+                <span className="text-xs text-fg-subtle tabular-nums">{list.length}</span>
               </div>
               <button
-                onClick={() => setCreateOpen(true)}
+                onClick={() => setCreateOpen(true, { ...createDefaults, status })}
                 className="flex h-6 w-6 items-center justify-center rounded text-fg-subtle hover:bg-bg-hover hover:text-fg"
                 aria-label={`Add to ${meta.label}`}
               >

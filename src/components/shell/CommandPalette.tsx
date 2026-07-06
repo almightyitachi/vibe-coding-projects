@@ -7,8 +7,9 @@ import {
   Plus, Moon, CircleUser, CornerDownLeft,
 } from "lucide-react";
 import { useUIStore } from "@/hooks/useUIStore";
+import { useTasks } from "@/hooks/useTaskStore";
 import { useTheme } from "@/components/theme/ThemeProvider";
-import { projects, sprints, docs, tasks, reviews } from "@/lib/mock-data";
+import { projects, sprints, docs, reviews } from "@/lib/mock-data";
 import { Kbd } from "@/components/ui/primitives";
 import { cn } from "@/lib/utils";
 
@@ -22,7 +23,8 @@ interface Item {
 }
 
 export function CommandPalette() {
-  const { paletteOpen, setPaletteOpen, setCreateOpen } = useUIStore();
+  const { paletteOpen, setPaletteOpen, setCreateOpen, setSelectedTaskId } = useUIStore();
+  const { tasks } = useTasks();
   const { toggle } = useTheme();
   const router = useRouter();
   const [query, setQuery] = useState("");
@@ -46,10 +48,13 @@ export function CommandPalette() {
     const proj: Item[] = projects.map((p) => ({ id: p.id, label: p.name, hint: p.key, group: "Projects", icon: Layers, run: () => go(`/projects/${p.id}`) }));
     const spr: Item[] = sprints.map((s) => ({ id: s.id, label: s.name, hint: "Sprint", group: "Sprints", icon: Zap, run: () => go(`/sprints/${s.id}`) }));
     const doc: Item[] = docs.map((d) => ({ id: d.id, label: d.title, hint: d.template, group: "Documentation", icon: FileText, run: () => go(`/docs/${d.id}`) }));
-    const tsk: Item[] = tasks.map((t) => ({ id: t.id, label: t.title, hint: t.id, group: "Tasks", icon: CornerDownLeft, run: () => go(`/sprints/${t.sprintId ?? ""}`) }));
+    const tsk: Item[] = tasks.map((t) => ({
+      id: t.id, label: t.title, hint: t.id, group: "Tasks", icon: CornerDownLeft,
+      run: () => { setPaletteOpen(false); setSelectedTaskId(t.id); },
+    }));
     const rev: Item[] = reviews.map((r) => ({ id: r.id, label: r.title, hint: "Review", group: "Reviews", icon: GitPullRequestArrow, run: () => go("/reviews") }));
     return [...actions, ...proj, ...spr, ...doc, ...tsk, ...rev];
-  }, [router, setPaletteOpen, setCreateOpen, toggle]);
+  }, [router, setPaletteOpen, setCreateOpen, setSelectedTaskId, toggle, tasks]);
 
   const filtered = useMemo(() => {
     if (!query.trim()) return items.filter((i) => i.group === "Actions" || i.group === "Navigate");

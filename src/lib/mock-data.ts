@@ -6,25 +6,25 @@ import type {
 export const CURRENT_USER_ID = "u_maya";
 
 export const users: User[] = [
-  { id: "u_maya", name: "Maya Chen", email: "maya@studio.design", role: "DESIGN_LEAD", title: "Design Lead", avatarColor: "#5b5bd6" },
-  { id: "u_arjun", name: "Arjun Rao", email: "arjun@studio.design", role: "DESIGNER", title: "Senior Product Designer", avatarColor: "#0ea5e9" },
-  { id: "u_lena", name: "Lena Fischer", email: "lena@studio.design", role: "DESIGNER", title: "UX Designer", avatarColor: "#12a594" },
-  { id: "u_theo", name: "Theo Martins", email: "theo@studio.design", role: "DESIGNER", title: "UX Researcher", avatarColor: "#f5a623" },
-  { id: "u_nadia", name: "Nadia Kaur", email: "nadia@studio.design", role: "ADMIN", title: "Design Ops", avatarColor: "#d6409f" },
-  { id: "u_sam", name: "Sam Okafor", email: "sam@studio.design", role: "VIEWER", title: "PM (Stakeholder)", avatarColor: "#8e4ec6" },
+  { id: "u_maya", name: "Maya Chen", email: "maya@studio.design", role: "DESIGN_LEAD", title: "Design Lead", avatarColor: "#33684b" },
+  { id: "u_arjun", name: "Arjun Rao", email: "arjun@studio.design", role: "DESIGNER", title: "Senior Product Designer", avatarColor: "#41729f" },
+  { id: "u_lena", name: "Lena Fischer", email: "lena@studio.design", role: "DESIGNER", title: "UX Designer", avatarColor: "#3f8f7a" },
+  { id: "u_theo", name: "Theo Martins", email: "theo@studio.design", role: "DESIGNER", title: "UX Researcher", avatarColor: "#c08a2e" },
+  { id: "u_nadia", name: "Nadia Kaur", email: "nadia@studio.design", role: "ADMIN", title: "Design Ops", avatarColor: "#b3527d" },
+  { id: "u_sam", name: "Sam Okafor", email: "sam@studio.design", role: "VIEWER", title: "PM (Stakeholder)", avatarColor: "#7d5ba6" },
 ];
 
 export const userById = (id?: string) => users.find((u) => u.id === id);
 
 // --- Tags ----------------------------------------------------------------
 export const tags: Tag[] = [
-  { id: "t_ux", label: "UX", color: "#5b5bd6" },
-  { id: "t_ui", label: "UI", color: "#0ea5e9" },
-  { id: "t_research", label: "Research", color: "#f5a623" },
-  { id: "t_a11y", label: "Accessibility", color: "#12a594" },
-  { id: "t_ds", label: "Design System", color: "#8e4ec6" },
-  { id: "t_qa", label: "Design QA", color: "#e5484d" },
-  { id: "t_handoff", label: "Handoff", color: "#30a46c" },
+  { id: "t_ux", label: "UX", color: "#41729f" },
+  { id: "t_ui", label: "UI", color: "#33684b" },
+  { id: "t_research", label: "Research", color: "#c26a2e" },
+  { id: "t_a11y", label: "Accessibility", color: "#3f8f7a" },
+  { id: "t_ds", label: "Design System", color: "#7d5ba6" },
+  { id: "t_qa", label: "Design QA", color: "#bf4a2e" },
+  { id: "t_handoff", label: "Handoff", color: "#35855b" },
 ];
 export const tagById = (id: string) => tags.find((t) => t.id === id);
 

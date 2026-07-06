@@ -2,26 +2,33 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { X, Figma, Play, Send, CalendarDays, Hash } from "lucide-react";
+import { X, Figma, Play, Send, Hash, Trash2 } from "lucide-react";
 import { useUIStore } from "@/hooks/useUIStore";
-import { taskById, userById, projectById, sprintById, tagById } from "@/lib/mock-data";
+import { useTasks } from "@/hooks/useTaskStore";
+import { userById, projectById, sprintById, tagById, users } from "@/lib/mock-data";
 import { STATUS_META, STATUS_ORDER, PRIORITY_META, DESIGN_STAGE_META } from "@/lib/domain";
 import { StatusIcon, PriorityIcon } from "@/components/ui/indicators";
 import { Avatar, Badge } from "@/components/ui/primitives";
-import { cn, relativeTime, shortDate } from "@/lib/utils";
-import type { Priority, Task, TaskStatus } from "@/lib/types";
+import { cn, relativeTime } from "@/lib/utils";
+import type { Priority, Task } from "@/lib/types";
 
 const PRIORITIES: Priority[] = ["URGENT", "HIGH", "MEDIUM", "LOW"];
 
-/** Linear-style slide-over with full task detail. Opens from any card or row. */
+/**
+ * Slide-over task editor. Every control writes through the shared task store,
+ * so edits persist across the app (and reloads, via localStorage).
+ */
 export function TaskPanel() {
   const { selectedTaskId, setSelectedTaskId } = useUIStore();
-  const task = selectedTaskId ? taskById(selectedTaskId) : undefined;
+  const { tasks } = useTasks();
+  const task = selectedTaskId ? tasks.find((t) => t.id === selectedTaskId) : undefined;
 
   useEffect(() => {
     if (!task) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setSelectedTaskId(null);
+      const el = e.target as HTMLElement | null;
+      const typing = !!el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA");
+      if (e.key === "Escape" && !typing) setSelectedTaskId(null);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -31,8 +38,8 @@ export function TaskPanel() {
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end" role="dialog" aria-modal="true" aria-label={task.title}>
-      <div className="animate-overlay-in absolute inset-0 bg-black/30" onClick={() => setSelectedTaskId(null)} />
-      {/* key resets local state when switching tasks */}
+      <div className="animate-overlay-in absolute inset-0 bg-black/25" onClick={() => setSelectedTaskId(null)} />
+      {/* key resets local edit buffers when switching tasks */}
       <PanelBody key={task.id} task={task} onClose={() => setSelectedTaskId(null)} />
     </div>
   );
@@ -40,14 +47,38 @@ export function TaskPanel() {
 
 function PanelBody({ task, onClose }: { task: Task; onClose: () => void }) {
   const { pushToast } = useUIStore();
-  const [status, setStatus] = useState<TaskStatus>(task.status);
-  const [priority, setPriority] = useState<Priority>(task.priority);
+  const { updateTask, deleteTask } = useTasks();
+
+  const [title, setTitle] = useState(task.title);
+  const [description, setDescription] = useState(task.description);
   const [comment, setComment] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const project = projectById(task.projectId);
   const sprint = sprintById(task.sprintId);
-  const assignee = userById(task.assigneeId);
   const reporter = userById(task.reporterId);
+
+  const commitTitle = () => {
+    const next = title.trim();
+    if (!next) { setTitle(task.title); return; }
+    if (next !== task.title) {
+      updateTask(task.id, { title: next });
+      pushToast("Title updated");
+    }
+  };
+
+  const commitDescription = () => {
+    if (description !== task.description) {
+      updateTask(task.id, { description });
+      pushToast("Description saved");
+    }
+  };
+
+  const removeTask = () => {
+    deleteTask(task.id);
+    onClose();
+    pushToast(`${task.id} deleted`);
+  };
 
   const canned = task.commentCount > 0
     ? [
@@ -58,6 +89,7 @@ function PanelBody({ task, onClose }: { task: Task; onClose: () => void }) {
 
   const submitComment = () => {
     if (!comment.trim()) return;
+    updateTask(task.id, { commentCount: task.commentCount + 1 });
     setComment("");
     pushToast("Comment added");
   };
@@ -78,18 +110,57 @@ function PanelBody({ task, onClose }: { task: Task; onClose: () => void }) {
             </>
           )}
         </div>
-        <button
-          onClick={onClose}
-          aria-label="Close panel"
-          className="flex h-7 w-7 items-center justify-center rounded-md text-fg-subtle transition-colors hover:bg-bg-hover hover:text-fg focus-ring"
-        >
-          <X size={15} />
-        </button>
+        <div className="flex items-center gap-1">
+          {confirmDelete ? (
+            <div className="flex items-center gap-1.5 text-xs">
+              <span className="text-fg-muted">Delete task?</span>
+              <button onClick={removeTask} className="rounded-md bg-danger px-2 py-1 font-medium text-white transition-opacity hover:opacity-90">
+                Delete
+              </button>
+              <button onClick={() => setConfirmDelete(false)} className="rounded-md px-2 py-1 font-medium text-fg-muted hover:bg-bg-hover">
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setConfirmDelete(true)}
+              aria-label="Delete task"
+              title="Delete task"
+              className="flex h-7 w-7 items-center justify-center rounded-md text-fg-subtle transition-colors hover:bg-danger-subtle hover:text-danger focus-ring"
+            >
+              <Trash2 size={14} />
+            </button>
+          )}
+          <button
+            onClick={onClose}
+            aria-label="Close panel"
+            className="flex h-7 w-7 items-center justify-center rounded-md text-fg-subtle transition-colors hover:bg-bg-hover hover:text-fg focus-ring"
+          >
+            <X size={15} />
+          </button>
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto px-5 py-5">
-        <h2 className="text-lg font-semibold leading-snug tracking-tight">{task.title}</h2>
-        <p className="mt-2 text-sm leading-relaxed text-fg-muted">{task.description}</p>
+        {/* Editable title */}
+        <input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          onBlur={commitTitle}
+          onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }}
+          aria-label="Task title"
+          className="w-full rounded-md bg-transparent text-lg font-semibold leading-snug tracking-tight outline-none transition-colors hover:bg-bg-hover focus:bg-bg-hover px-1 -mx-1"
+        />
+        {/* Editable description */}
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          onBlur={commitDescription}
+          placeholder="Add a description…"
+          rows={3}
+          aria-label="Task description"
+          className="mt-2 w-full resize-none rounded-md bg-transparent text-sm leading-relaxed text-fg-muted outline-none transition-colors hover:bg-bg-hover focus:bg-bg-hover px-1 -mx-1"
+        />
 
         {/* Status */}
         <SectionLabel>Status</SectionLabel>
@@ -97,10 +168,15 @@ function PanelBody({ task, onClose }: { task: Task; onClose: () => void }) {
           {STATUS_ORDER.map((s) => (
             <button
               key={s}
-              onClick={() => { setStatus(s); pushToast(`Moved to ${STATUS_META[s].label}`); }}
+              onClick={() => {
+                if (task.status !== s) {
+                  updateTask(task.id, { status: s });
+                  pushToast(`Moved to ${STATUS_META[s].label}`);
+                }
+              }}
               className={cn(
                 "flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs font-medium transition-colors focus-ring",
-                status === s
+                task.status === s
                   ? "border-border-strong bg-bg-active text-fg"
                   : "border-transparent text-fg-muted hover:bg-bg-hover hover:text-fg",
               )}
@@ -117,10 +193,15 @@ function PanelBody({ task, onClose }: { task: Task; onClose: () => void }) {
           {PRIORITIES.map((p) => (
             <button
               key={p}
-              onClick={() => { setPriority(p); pushToast(`Priority set to ${PRIORITY_META[p].label}`); }}
+              onClick={() => {
+                if (task.priority !== p) {
+                  updateTask(task.id, { priority: p });
+                  pushToast(`Priority set to ${PRIORITY_META[p].label}`);
+                }
+              }}
               className={cn(
                 "flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs font-medium transition-colors focus-ring",
-                priority === p
+                task.priority === p
                   ? "border-border-strong bg-bg-active text-fg"
                   : "border-transparent text-fg-muted hover:bg-bg-hover hover:text-fg",
               )}
@@ -135,9 +216,18 @@ function PanelBody({ task, onClose }: { task: Task; onClose: () => void }) {
         <SectionLabel>Properties</SectionLabel>
         <div className="space-y-2.5">
           <Prop label="Assignee">
-            {assignee ? (
-              <span className="flex items-center gap-1.5"><Avatar userId={assignee.id} size={18} /> {assignee.name}</span>
-            ) : <span className="text-fg-subtle">Unassigned</span>}
+            <select
+              value={task.assigneeId ?? ""}
+              onChange={(e) => {
+                updateTask(task.id, { assigneeId: e.target.value || undefined });
+                pushToast(e.target.value ? `Assigned to ${userById(e.target.value)?.name}` : "Unassigned");
+              }}
+              aria-label="Assignee"
+              className="h-7 w-full max-w-[200px] rounded-md border border-border bg-bg-elevated px-2 text-xs text-fg outline-none focus-ring"
+            >
+              <option value="">Unassigned</option>
+              {users.map((u) => <option key={u.id} value={u.id}>{u.name}</option>)}
+            </select>
           </Prop>
           <Prop label="Reporter">
             <span className="flex items-center gap-1.5"><Avatar userId={reporter?.id} size={18} /> {reporter?.name}</span>
@@ -156,13 +246,31 @@ function PanelBody({ task, onClose }: { task: Task; onClose: () => void }) {
             </Prop>
           )}
           <Prop label="Points">
-            <span className="rounded bg-bg-inset px-1.5 py-0.5 text-xs font-medium tabular-nums">{task.points}</span>
+            <input
+              type="number"
+              min={0}
+              max={21}
+              value={task.points}
+              onChange={(e) => {
+                const v = parseInt(e.target.value, 10);
+                if (!Number.isNaN(v)) updateTask(task.id, { points: Math.max(0, Math.min(21, v)) });
+              }}
+              aria-label="Story points"
+              className="h-7 w-16 rounded-md border border-border bg-bg-elevated px-2 text-xs tabular-nums text-fg outline-none focus-ring"
+            />
           </Prop>
-          {task.dueDate && (
-            <Prop label="Due date">
-              <span className="flex items-center gap-1.5 text-warning"><CalendarDays size={13} /> {shortDate(task.dueDate)}</span>
-            </Prop>
-          )}
+          <Prop label="Due date">
+            <input
+              type="date"
+              value={task.dueDate ? task.dueDate.slice(0, 10) : ""}
+              onChange={(e) => {
+                updateTask(task.id, { dueDate: e.target.value || undefined });
+                pushToast(e.target.value ? "Due date set" : "Due date cleared");
+              }}
+              aria-label="Due date"
+              className="h-7 rounded-md border border-border bg-bg-elevated px-2 text-xs text-fg outline-none focus-ring"
+            />
+          </Prop>
           <Prop label="Updated">{relativeTime(task.updatedAt)}</Prop>
         </div>
 
@@ -201,7 +309,7 @@ function PanelBody({ task, onClose }: { task: Task; onClose: () => void }) {
         )}
 
         {/* Comments */}
-        <SectionLabel>Comments {task.commentCount > 0 && <span className="text-fg-subtle">{task.commentCount}</span>}</SectionLabel>
+        <SectionLabel>Comments {task.commentCount > 0 && <span className="text-fg-subtle tabular-nums">{task.commentCount}</span>}</SectionLabel>
         <div className="space-y-3">
           {canned.map((c, i) => {
             const author = userById(c.userId);

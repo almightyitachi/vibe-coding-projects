@@ -6,6 +6,8 @@ import { Topbar } from "@/components/shell/Topbar";
 import { PageHeader, Card, Avatar, Badge, Button } from "@/components/ui/primitives";
 import { users } from "@/lib/mock-data";
 import { useTheme } from "@/components/theme/ThemeProvider";
+import { useTasks } from "@/hooks/useTaskStore";
+import { useUIStore } from "@/hooks/useUIStore";
 import { cn } from "@/lib/utils";
 import type { Role } from "@/lib/types";
 
@@ -16,7 +18,7 @@ const ROLE_LABEL: Record<Role, string> = {
   ADMIN: "Admin", DESIGN_LEAD: "Design Lead", DESIGNER: "Designer", VIEWER: "Viewer",
 };
 const ROLE_COLOR: Record<Role, string> = {
-  ADMIN: "#e5484d", DESIGN_LEAD: "#5b5bd6", DESIGNER: "#12a594", VIEWER: "#8b8b93",
+  ADMIN: "#bf4a2e", DESIGN_LEAD: "#33684b", DESIGNER: "#3f8f7a", VIEWER: "#8a927f",
 };
 
 const CAPABILITIES = [
@@ -38,6 +40,8 @@ const TEMPLATES = ["Research", "Design Brief", "User Flow", "Feature Spec", "Des
 export default function SettingsPage() {
   const [tab, setTab] = useState<Tab>("Workspace");
   const { theme, toggle } = useTheme();
+  const { resetDemo } = useTasks();
+  const { pushToast } = useUIStore();
   const roles: Role[] = ["ADMIN", "DESIGN_LEAD", "DESIGNER", "VIEWER"];
 
   return (
@@ -65,6 +69,13 @@ export default function SettingsPage() {
                 <Field label="URL" value="studio.sprintdesk.app" />
                 <Field label="Plan" value="Team · 6 seats" />
                 <div className="mt-4"><Button variant="primary" size="sm">Save changes</Button></div>
+                <div className="mt-6 flex items-center justify-between rounded-lg border border-border p-3">
+                  <div>
+                    <div className="text-sm font-medium">Demo data</div>
+                    <div className="text-xs text-fg-subtle">Restore the original sample tasks (discards your local changes).</div>
+                  </div>
+                  <Button size="sm" onClick={() => { resetDemo(); pushToast("Demo data restored"); }}>Reset tasks</Button>
+                </div>
               </Card>
             )}
 

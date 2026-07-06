@@ -150,7 +150,7 @@ export function PageHeader({
         <div className="flex items-center gap-3">
           {icon && <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-bg-inset text-lg">{icon}</div>}
           <div>
-            <h1 className="text-xl font-semibold tracking-tight">{title}</h1>
+            <h1 className="font-display text-[22px] font-semibold tracking-tight">{title}</h1>
             {subtitle && <p className="mt-0.5 text-sm text-fg-muted">{subtitle}</p>}
           </div>
         </div>

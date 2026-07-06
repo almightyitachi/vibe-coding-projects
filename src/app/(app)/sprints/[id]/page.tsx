@@ -9,7 +9,8 @@ import { PriorityIcon } from "@/components/ui/indicators";
 import { Board } from "@/components/board/Board";
 import { TaskRow } from "@/components/board/TaskRow";
 import { Burndown } from "@/components/board/Burndown";
-import { sprintById, projectById, tasks, userById } from "@/lib/mock-data";
+import { sprintById, projectById, userById } from "@/lib/mock-data";
+import { useTasks } from "@/hooks/useTaskStore";
 import { SPRINT_STATUS_META, PRIORITY_META } from "@/lib/domain";
 import { shortDate, cn } from "@/lib/utils";
 import type { Priority, Task } from "@/lib/types";
@@ -19,6 +20,7 @@ const PRIORITIES: Priority[] = ["URGENT", "HIGH", "MEDIUM", "LOW"];
 export default function SprintDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const sprint = sprintById(id);
+  const { tasks } = useTasks();
   const [view, setView] = useState<"board" | "list" | "overview">("board");
   const [assigneeFilter, setAssigneeFilter] = useState<Set<string>>(new Set());
   const [priorityFilter, setPriorityFilter] = useState<Set<Priority>>(new Set());
@@ -133,7 +135,13 @@ export default function SprintDetail({ params }: { params: Promise<{ id: string 
       )}
 
       <div className="flex-1 overflow-hidden">
-        {view === "board" && <Board initialTasks={sprintTasks} filter={filterFn} />}
+        {view === "board" && (
+          <Board
+            tasks={sprintTasks}
+            filter={filterFn}
+            createDefaults={{ projectId: sprint.projectId, sprintId: sprint.id }}
+          />
+        )}
         {view === "list" && (
           <div className="h-full overflow-y-auto p-4">
             <Card className="overflow-hidden">

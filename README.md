@@ -50,9 +50,13 @@ npx prisma@6 validate --schema prisma/schema.prisma   # schema is valid ✓
 
 Keyboard: `⌘K` search · `c` create task · `↑↓/↵` navigate · `⌘↵` submit · `Esc` close.
 
-## Design system — "Expo" theme
+## Design system — "Steep" theme
 
-Premium SaaS visual language inspired by Linear, Notion, Vercel and Raycast: spacious layouts, subtle shadows, minimal borders, smooth motion, and a first-class **dark mode** (default). All colors are semantic CSS-variable tokens mapped into Tailwind — see [`docs/06-design-system.md`](./docs/06-design-system.md).
+A warm, calm, tea-inspired visual language (steep.app-inspired): cream paper surfaces, deep tea-green brand, terracotta & amber accents, and serif display headings over an Inter UI — with a warm green-charcoal **dark mode**. All colors are semantic CSS-variable tokens mapped into Tailwind, so the whole theme lives in one file — see [`docs/06-design-system.md`](./docs/06-design-system.md).
+
+## Task management (fully functional)
+
+Tasks are backed by a client-side store persisted to localStorage — create (`c`, any + button, per-column +), edit everything in the slide-over panel (title, description, status, priority, assignee, points, due date), drag between board columns, delete with confirm, and reset the demo data from Settings. All screens (Home, boards, lists, ⌘K) read the same live store.
 
 ## Tech stack
 

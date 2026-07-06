@@ -8,7 +8,8 @@ import { Topbar } from "@/components/shell/Topbar";
 import { Breadcrumb, Card, AvatarStack, Badge, ProgressBar, Avatar } from "@/components/ui/primitives";
 import { Board } from "@/components/board/Board";
 import { TaskRow } from "@/components/board/TaskRow";
-import { projectById, sprints, tasks, docs, userById } from "@/lib/mock-data";
+import { projectById, sprints, docs, userById } from "@/lib/mock-data";
+import { useTasks } from "@/hooks/useTaskStore";
 import { PROJECT_STATUS_META, SPRINT_STATUS_META } from "@/lib/domain";
 import { shortDate, relativeTime, cn } from "@/lib/utils";
 
@@ -23,6 +24,7 @@ const VIEWS = [
 export default function ProjectDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const project = projectById(id);
+  const { tasks } = useTasks();
   const [view, setView] = useState<(typeof VIEWS)[number]["id"]>("list");
   if (!project) return notFound();
 
@@ -47,7 +49,7 @@ export default function ProjectDetail({ params }: { params: Promise<{ id: string
               <span className="text-xs font-semibold text-fg-subtle">{project.key}</span>
               <Badge color={meta.color}>{meta.label}</Badge>
             </div>
-            <h1 className="text-xl font-semibold tracking-tight">{project.name}</h1>
+            <h1 className="font-display text-[22px] font-semibold tracking-tight">{project.name}</h1>
             <p className="mt-1 max-w-2xl text-sm text-fg-muted">{project.description}</p>
           </div>
           <div className="hidden shrink-0 grid-cols-2 gap-x-6 gap-y-2 text-xs sm:grid">
@@ -90,9 +92,9 @@ export default function ProjectDetail({ params }: { params: Promise<{ id: string
             </Card>
           </div>
         )}
-        {view === "board" && <Board initialTasks={projectTasks} />}
+        {view === "board" && <Board tasks={projectTasks} createDefaults={{ projectId: project.id }} />}
         {view === "timeline" && <TimelineView projectId={project.id} />}
-        {view === "calendar" && <CalendarView projectId={project.id} />}
+        {view === "calendar" && <CalendarView projectId={project.id} tasks={tasks} />}
         {view === "docs" && (
           <div className="h-full overflow-y-auto p-4">
             <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2 lg:grid-cols-3">
@@ -146,7 +148,7 @@ function TimelineView({ projectId }: { projectId: string }) {
   );
 }
 
-function CalendarView({ projectId }: { projectId: string }) {
+function CalendarView({ projectId, tasks }: { projectId: string; tasks: import("@/lib/types").Task[] }) {
   const due = tasks.filter((t) => t.projectId === projectId && t.dueDate);
   const days = Array.from({ length: 35 }, (_, i) => i + 1);
   return (

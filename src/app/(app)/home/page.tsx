@@ -7,15 +7,17 @@ import { Card, Avatar, Badge, ProgressBar, SectionTitle } from "@/components/ui/
 import { StatusIcon } from "@/components/ui/indicators";
 import { TaskRow } from "@/components/board/TaskRow";
 import {
-  tasks, sprints, activity, userById, CURRENT_USER_ID, projectById,
+  sprints, activity, userById, CURRENT_USER_ID,
 } from "@/lib/mock-data";
-import { STATUS_META, STATUS_ORDER } from "@/lib/domain";
+import { STATUS_META } from "@/lib/domain";
 import { relativeTime, shortDate } from "@/lib/utils";
 import { useUIStore } from "@/hooks/useUIStore";
-import type { TaskStatus } from "@/lib/types";
+import { useTasks } from "@/hooks/useTaskStore";
+import type { Task, TaskStatus } from "@/lib/types";
 
 export default function HomePage() {
   const { setCreateOpen } = useUIStore();
+  const { tasks } = useTasks();
   const user = userById(CURRENT_USER_ID)!;
   const myTasks = tasks.filter((t) => t.assigneeId === CURRENT_USER_ID);
   const activeSprint = sprints.find((s) => s.status === "ACTIVE")!;
@@ -42,7 +44,7 @@ export default function HomePage() {
           {/* Welcome */}
           <div className="mb-6">
             <p className="text-xs font-medium uppercase tracking-wider text-fg-subtle" suppressHydrationWarning>{today}</p>
-            <h1 className="mt-1 text-2xl font-semibold tracking-tight" suppressHydrationWarning>{greeting}, {user.name.split(" ")[0]}</h1>
+            <h1 className="font-display mt-1 text-[28px] font-semibold tracking-tight" suppressHydrationWarning>{greeting}, {user.name.split(" ")[0]}</h1>
             <p className="mt-1 text-sm text-fg-muted">
               You have <span className="font-medium text-fg">{myTasks.filter((t) => t.status !== "DONE").length} open tasks</span> and{" "}
               <span className="font-medium text-fg">{blockers.length} blocker{blockers.length !== 1 ? "s" : ""}</span> in {activeSprint.name}.
@@ -61,7 +63,7 @@ export default function HomePage() {
             {/* My tasks */}
             <div className="lg:col-span-2">
               <SectionTitle action={<Link href="/my-work" className="text-xs text-brand hover:underline">View all</Link>}>My Tasks</SectionTitle>
-              <MyTasksGrouped />
+              <MyTasksGrouped tasks={tasks} />
             </div>
 
             {/* Right rail */}
@@ -129,7 +131,7 @@ export default function HomePage() {
   );
 }
 
-function MyTasksGrouped() {
+function MyTasksGrouped({ tasks }: { tasks: Task[] }) {
   const cols: TaskStatus[] = ["TODO", "IN_PROGRESS", "REVIEW", "DONE"];
   const mine = tasks.filter((t) => t.assigneeId === CURRENT_USER_ID);
   return (

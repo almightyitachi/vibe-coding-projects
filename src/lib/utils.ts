@@ -37,11 +37,11 @@ export function shortDate(iso: string) {
   return new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric" });
 }
 
-/** Deterministic pastel color from an id — used for avatars and tags. */
+/** Deterministic warm color from an id — used for avatars and tags. */
 export function colorFromId(id: string) {
   const palette = [
-    "#5b5bd6", "#e5484d", "#0ea5e9", "#f5a623", "#12a594",
-    "#8e4ec6", "#d6409f", "#30a46c", "#f76b15", "#3b82f6",
+    "#33684b", "#bf4a2e", "#41729f", "#c08a2e", "#3f8f7a",
+    "#7d5ba6", "#b3527d", "#35855b", "#c26a2e", "#5a7d9a",
   ];
   let h = 0;
   for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;

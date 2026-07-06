@@ -1,52 +1,55 @@
 import type { Priority, ProjectStatus, ReviewStatus, SprintStatus, TaskStatus } from "./types";
 
+// Accent hues follow the warm "Steep" palette: tea green, terracotta, amber,
+// slate blue, plum — muted and paper-friendly in both themes.
+
 export const STATUS_ORDER: TaskStatus[] = [
   "BACKLOG", "TODO", "IN_PROGRESS", "REVIEW", "APPROVED", "DONE",
 ];
 
 export const STATUS_META: Record<TaskStatus, { label: string; color: string; dot: string }> = {
-  BACKLOG: { label: "Backlog", color: "var(--fg-subtle)", dot: "#8b8b93" },
-  TODO: { label: "Todo", color: "var(--fg-muted)", dot: "#a1a1aa" },
-  IN_PROGRESS: { label: "In Progress", color: "var(--warning)", dot: "#f5a623" },
-  REVIEW: { label: "Review", color: "var(--info)", dot: "#3b82f6" },
-  APPROVED: { label: "Approved", color: "#8e4ec6", dot: "#8e4ec6" },
-  DONE: { label: "Done", color: "var(--success)", dot: "#30a46c" },
+  BACKLOG: { label: "Backlog", color: "var(--fg-subtle)", dot: "#8a927f" },
+  TODO: { label: "Todo", color: "var(--fg-muted)", dot: "#a6ae9f" },
+  IN_PROGRESS: { label: "In Progress", color: "var(--warning)", dot: "#c08a2e" },
+  REVIEW: { label: "Review", color: "var(--info)", dot: "#41729f" },
+  APPROVED: { label: "Approved", color: "#7d5ba6", dot: "#7d5ba6" },
+  DONE: { label: "Done", color: "var(--success)", dot: "#35855b" },
 };
 
 export const PRIORITY_META: Record<Priority, { label: string; color: string; rank: number }> = {
-  URGENT: { label: "Urgent", color: "#e5484d", rank: 0 },
-  HIGH: { label: "High", color: "#f5a623", rank: 1 },
-  MEDIUM: { label: "Medium", color: "#3b82f6", rank: 2 },
-  LOW: { label: "Low", color: "#8b8b93", rank: 3 },
+  URGENT: { label: "Urgent", color: "#bf4a2e", rank: 0 },
+  HIGH: { label: "High", color: "#c08a2e", rank: 1 },
+  MEDIUM: { label: "Medium", color: "#41729f", rank: 2 },
+  LOW: { label: "Low", color: "#8a927f", rank: 3 },
 };
 
 export const DESIGN_STAGE_META: Record<string, { label: string; color: string }> = {
-  DISCOVERY: { label: "Discovery", color: "#f5a623" },
-  WIREFRAME: { label: "Wireframe", color: "#3b82f6" },
-  VISUAL: { label: "Visual", color: "#8e4ec6" },
-  PROTOTYPE: { label: "Prototype", color: "#12a594" },
-  HANDOFF: { label: "Handoff", color: "#30a46c" },
+  DISCOVERY: { label: "Discovery", color: "#c08a2e" },
+  WIREFRAME: { label: "Wireframe", color: "#41729f" },
+  VISUAL: { label: "Visual", color: "#7d5ba6" },
+  PROTOTYPE: { label: "Prototype", color: "#3f8f7a" },
+  HANDOFF: { label: "Handoff", color: "#35855b" },
 };
 
 export const SPRINT_STATUS_META: Record<SprintStatus, { label: string; color: string }> = {
-  PLANNING: { label: "Planning", color: "#8b8b93" },
-  ACTIVE: { label: "Active", color: "#30a46c" },
-  REVIEW: { label: "Review", color: "#3b82f6" },
-  COMPLETED: { label: "Completed", color: "#8e4ec6" },
-  ARCHIVED: { label: "Archived", color: "#71717a" },
+  PLANNING: { label: "Planning", color: "#8a927f" },
+  ACTIVE: { label: "Active", color: "#35855b" },
+  REVIEW: { label: "Review", color: "#41729f" },
+  COMPLETED: { label: "Completed", color: "#7d5ba6" },
+  ARCHIVED: { label: "Archived", color: "#78816f" },
 };
 
 export const PROJECT_STATUS_META: Record<ProjectStatus, { label: string; color: string }> = {
-  PLANNING: { label: "Planning", color: "#8b8b93" },
-  ACTIVE: { label: "Active", color: "#30a46c" },
-  PAUSED: { label: "Paused", color: "#f5a623" },
-  COMPLETED: { label: "Completed", color: "#8e4ec6" },
+  PLANNING: { label: "Planning", color: "#8a927f" },
+  ACTIVE: { label: "Active", color: "#35855b" },
+  PAUSED: { label: "Paused", color: "#c08a2e" },
+  COMPLETED: { label: "Completed", color: "#7d5ba6" },
 };
 
 export const REVIEW_STATUS_META: Record<ReviewStatus, { label: string; color: string }> = {
-  DRAFT: { label: "Draft", color: "#8b8b93" },
-  READY: { label: "Ready for Review", color: "#3b82f6" },
-  CHANGES_REQUESTED: { label: "Changes Requested", color: "#f5a623" },
-  APPROVED: { label: "Approved", color: "#30a46c" },
-  CLOSED: { label: "Closed", color: "#71717a" },
+  DRAFT: { label: "Draft", color: "#8a927f" },
+  READY: { label: "Ready for Review", color: "#41729f" },
+  CHANGES_REQUESTED: { label: "Changes Requested", color: "#c08a2e" },
+  APPROVED: { label: "Approved", color: "#35855b" },
+  CLOSED: { label: "Closed", color: "#78816f" },
 };

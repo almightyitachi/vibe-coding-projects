@@ -6,13 +6,15 @@ import { Topbar } from "@/components/shell/Topbar";
 import { PageHeader, Card } from "@/components/ui/primitives";
 import { StatusIcon } from "@/components/ui/indicators";
 import { TaskRow } from "@/components/board/TaskRow";
-import { tasks, CURRENT_USER_ID } from "@/lib/mock-data";
+import { CURRENT_USER_ID } from "@/lib/mock-data";
+import { useTasks } from "@/hooks/useTaskStore";
 import { STATUS_META, STATUS_ORDER } from "@/lib/domain";
 import { cn } from "@/lib/utils";
 import type { TaskStatus } from "@/lib/types";
 
 export default function MyWorkPage() {
   const [group, setGroup] = useState<"status" | "priority">("status");
+  const { tasks } = useTasks();
   const mine = tasks.filter((t) => t.assigneeId === CURRENT_USER_ID);
 
   return (

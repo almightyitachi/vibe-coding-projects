@@ -4,11 +4,13 @@ import Link from "next/link";
 import { Zap, ArrowRight } from "lucide-react";
 import { Topbar } from "@/components/shell/Topbar";
 import { PageHeader, Card, Badge, ProgressBar, Avatar } from "@/components/ui/primitives";
-import { sprints, tasks, projectById, userById } from "@/lib/mock-data";
+import { sprints, projectById, userById } from "@/lib/mock-data";
+import { useTasks } from "@/hooks/useTaskStore";
 import { SPRINT_STATUS_META } from "@/lib/domain";
 import { shortDate } from "@/lib/utils";
 
 export default function SprintsPage() {
+  const { tasks } = useTasks();
   return (
     <>
       <Topbar left={<span className="text-sm font-medium">Sprints</span>} />

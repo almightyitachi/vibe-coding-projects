@@ -43,7 +43,7 @@ export default function DocDetail({ params }: { params: Promise<{ id: string }> 
         <div className="mx-auto grid max-w-5xl grid-cols-1 gap-8 px-6 py-8 lg:grid-cols-[1fr_220px]">
           <article>
             <div className="mb-2 text-4xl">{doc.icon}</div>
-            <h1 className="text-3xl font-bold tracking-tight">{doc.title}</h1>
+            <h1 className="font-display text-[34px] font-semibold tracking-tight">{doc.title}</h1>
             <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-fg-subtle">
               <Badge>{doc.template}</Badge>
               <span className="flex items-center gap-1.5"><Avatar userId={author?.id} size={18} /> {author?.name}</span>

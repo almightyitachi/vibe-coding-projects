@@ -12,11 +12,19 @@ export interface Toast {
   text: string;
 }
 
+/** Optional defaults handed to the quick-create modal (e.g. per-column +). */
+export interface CreateDefaults {
+  status?: string;
+  projectId?: string;
+  sprintId?: string;
+}
+
 interface UIState {
   paletteOpen: boolean;
   setPaletteOpen: (v: boolean) => void;
   createOpen: boolean;
-  setCreateOpen: (v: boolean) => void;
+  createDefaults: CreateDefaults | null;
+  setCreateOpen: (v: boolean, defaults?: CreateDefaults) => void;
   selectedTaskId: string | null;
   setSelectedTaskId: (id: string | null) => void;
   toasts: Toast[];
@@ -27,10 +35,16 @@ const Ctx = createContext<UIState | null>(null);
 
 export function UIStoreProvider({ children }: { children: ReactNode }) {
   const [paletteOpen, setPaletteOpen] = useState(false);
-  const [createOpen, setCreateOpen] = useState(false);
+  const [createOpen, setCreateOpenRaw] = useState(false);
+  const [createDefaults, setCreateDefaults] = useState<CreateDefaults | null>(null);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const toastId = useRef(0);
+
+  const setCreateOpen = useCallback((v: boolean, defaults?: CreateDefaults) => {
+    setCreateDefaults(v ? defaults ?? null : null);
+    setCreateOpenRaw(v);
+  }, []);
 
   const pushToast = useCallback((text: string) => {
     const id = ++toastId.current;
@@ -51,13 +65,13 @@ export function UIStoreProvider({ children }: { children: ReactNode }) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  }, [setCreateOpen]);
 
   return (
     <Ctx.Provider
       value={{
         paletteOpen, setPaletteOpen,
-        createOpen, setCreateOpen,
+        createOpen, createDefaults, setCreateOpen,
         selectedTaskId, setSelectedTaskId,
         toasts, pushToast,
       }}

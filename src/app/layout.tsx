@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { ThemeProvider, ThemeScript } from "@/components/theme/ThemeProvider";
 import { UIStoreProvider } from "@/hooks/useUIStore";
+import { TasksProvider } from "@/hooks/useTaskStore";
 import { CommandPalette } from "@/components/shell/CommandPalette";
 import { QuickCreate } from "@/components/shell/QuickCreate";
 import { TaskPanel } from "@/components/board/TaskPanel";
@@ -14,8 +15,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0b0b0e" },
+    { media: "(prefers-color-scheme: light)", color: "#faf8f3" },
+    { media: "(prefers-color-scheme: dark)", color: "#121613" },
   ],
 };
 
@@ -28,11 +29,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <ThemeProvider>
           <UIStoreProvider>
-            {children}
-            <CommandPalette />
-            <QuickCreate />
-            <TaskPanel />
-            <Toaster />
+            <TasksProvider>
+              {children}
+              <CommandPalette />
+              <QuickCreate />
+              <TaskPanel />
+              <Toaster />
+            </TasksProvider>
           </UIStoreProvider>
         </ThemeProvider>
       </body>

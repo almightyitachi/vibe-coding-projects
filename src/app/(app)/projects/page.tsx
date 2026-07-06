@@ -4,11 +4,13 @@ import Link from "next/link";
 import { Layers } from "lucide-react";
 import { Topbar } from "@/components/shell/Topbar";
 import { PageHeader, Card, AvatarStack, Badge, ProgressBar } from "@/components/ui/primitives";
-import { projects, sprints, tasks } from "@/lib/mock-data";
+import { projects, sprints } from "@/lib/mock-data";
+import { useTasks } from "@/hooks/useTaskStore";
 import { PROJECT_STATUS_META } from "@/lib/domain";
 import { shortDate } from "@/lib/utils";
 
 export default function ProjectsPage() {
+  const { tasks } = useTasks();
   return (
     <>
       <Topbar left={<span className="text-sm font-medium">Projects</span>} />
