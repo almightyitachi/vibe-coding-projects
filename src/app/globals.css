@@ -1,0 +1,228 @@
+@import "tailwindcss";
+
+/*
+  SprintDesk Design System — "Expo" theme
+  A premium SaaS visual language inspired by Linear, Notion, Vercel and Raycast.
+  Spacious layouts · subtle shadows · minimal borders · smooth motion · first-class dark mode.
+*/
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", "Fira Code", monospace;
+
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  /* Priority + status accent scales are exposed as utilities */
+  --color-brand: #5b5bd6;
+  --color-brand-fg: #ffffff;
+}
+
+/* ---------- Light theme tokens ---------- */
+:root {
+  --bg: #ffffff;
+  --bg-subtle: #fafafa;
+  --bg-elevated: #ffffff;
+  --bg-inset: #f4f4f5;
+  --bg-hover: #f4f4f5;
+  --bg-active: #ececef;
+
+  --fg: #18181b;
+  --fg-muted: #52525b;
+  --fg-subtle: #8b8b93;
+  --fg-onbrand: #ffffff;
+
+  --border: #ececef;
+  --border-strong: #dcdce0;
+
+  --brand: #5b5bd6;
+  --brand-hover: #4f4fc9;
+  --brand-subtle: #eeeefb;
+
+  --success: #16a34a;
+  --success-subtle: #e7f6ec;
+  --warning: #d97706;
+  --warning-subtle: #fdf2e3;
+  --danger: #dc2626;
+  --danger-subtle: #fdeaea;
+  --info: #2563eb;
+  --info-subtle: #e8f0fe;
+
+  --shadow-sm: 0 1px 2px rgba(24, 24, 27, 0.04), 0 1px 3px rgba(24, 24, 27, 0.06);
+  --shadow-md: 0 4px 12px rgba(24, 24, 27, 0.08), 0 2px 4px rgba(24, 24, 27, 0.04);
+  --shadow-lg: 0 12px 32px rgba(24, 24, 27, 0.12), 0 4px 8px rgba(24, 24, 27, 0.06);
+  --shadow-pop: 0 16px 48px rgba(24, 24, 27, 0.18);
+}
+
+/* ---------- Dark theme tokens ---------- */
+:root[data-theme="dark"] {
+  --bg: #0b0b0e;
+  --bg-subtle: #101014;
+  --bg-elevated: #16161b;
+  --bg-inset: #1b1b21;
+  --bg-hover: #1c1c22;
+  --bg-active: #26262e;
+
+  --fg: #f4f4f5;
+  --fg-muted: #a1a1aa;
+  --fg-subtle: #71717a;
+  --fg-onbrand: #ffffff;
+
+  --border: #23232a;
+  --border-strong: #303039;
+
+  --brand: #7c7cf0;
+  --brand-hover: #8f8ff3;
+  --brand-subtle: #1c1c33;
+
+  --success: #4ade80;
+  --success-subtle: #12271a;
+  --warning: #fbbf24;
+  --warning-subtle: #2a2010;
+  --danger: #f87171;
+  --danger-subtle: #2a1414;
+  --info: #60a5fa;
+  --info-subtle: #12203a;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.6);
+  --shadow-pop: 0 16px 48px rgba(0, 0, 0, 0.7);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0b0b0e;
+    --bg-subtle: #101014;
+    --bg-elevated: #16161b;
+    --bg-inset: #1b1b21;
+    --bg-hover: #1c1c22;
+    --bg-active: #26262e;
+    --fg: #f4f4f5;
+    --fg-muted: #a1a1aa;
+    --fg-subtle: #71717a;
+    --border: #23232a;
+    --border-strong: #303039;
+    --brand: #7c7cf0;
+    --brand-hover: #8f8ff3;
+    --brand-subtle: #1c1c33;
+    --success: #4ade80;
+    --success-subtle: #12271a;
+    --warning: #fbbf24;
+    --warning-subtle: #2a2010;
+    --danger: #f87171;
+    --danger-subtle: #2a1414;
+    --info: #60a5fa;
+    --info-subtle: #12203a;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.6);
+    --shadow-pop: 0 16px 48px rgba(0, 0, 0, 0.7);
+  }
+}
+
+/* Map semantic tokens into Tailwind's color space so utilities like bg-bg, text-fg work */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-subtle: var(--bg-subtle);
+  --color-bg-elevated: var(--bg-elevated);
+  --color-bg-inset: var(--bg-inset);
+  --color-bg-hover: var(--bg-hover);
+  --color-bg-active: var(--bg-active);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-subtle: var(--fg-subtle);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-subtle: var(--brand-subtle);
+  --color-success: var(--success);
+  --color-success-subtle: var(--success-subtle);
+  --color-warning: var(--warning);
+  --color-warning-subtle: var(--warning-subtle);
+  --color-danger: var(--danger);
+  --color-danger-subtle: var(--danger-subtle);
+  --color-info: var(--info);
+  --color-info-subtle: var(--info-subtle);
+}
+
+* {
+  border-color: var(--border);
+}
+
+html {
+  color-scheme: light dark;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--brand-subtle);
+  color: var(--fg);
+}
+
+/* Slim, unobtrusive scrollbars — Linear-style */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--fg-subtle);
+  background-clip: padding-box;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(2px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pop-in {
+  from { opacity: 0; transform: scale(0.97) translateY(6px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes overlay-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fade-in { animation: fade-in 0.18s ease-out; }
+.animate-pop-in { animation: pop-in 0.16s cubic-bezier(0.16, 1, 0.3, 1); }
+.animate-overlay-in { animation: overlay-in 0.15s ease-out; }
+
+/* Focus ring — accessible and consistent */
+.focus-ring:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+/* Prose defaults for the documentation reader */
+.prose-doc { color: var(--fg); line-height: 1.7; }
+.prose-doc h1 { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.02em; margin: 1.5rem 0 0.75rem; }
+.prose-doc h2 { font-size: 1.3rem; font-weight: 650; letter-spacing: -0.01em; margin: 1.75rem 0 0.5rem; }
+.prose-doc h3 { font-size: 1.05rem; font-weight: 600; margin: 1.25rem 0 0.4rem; }
+.prose-doc p { margin: 0.6rem 0; color: var(--fg-muted); }
+.prose-doc ul { margin: 0.5rem 0; padding-left: 1.25rem; list-style: disc; color: var(--fg-muted); }
+.prose-doc li { margin: 0.25rem 0; }
+.prose-doc strong { color: var(--fg); font-weight: 600; }
+.prose-doc code { font-family: var(--font-mono); font-size: 0.85em; background: var(--bg-inset); padding: 0.1rem 0.35rem; border-radius: 4px; }
+.prose-doc blockquote { border-left: 3px solid var(--brand); padding-left: 1rem; color: var(--fg-muted); margin: 1rem 0; }
