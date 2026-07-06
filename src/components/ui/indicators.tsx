@@ -25,7 +25,7 @@ export function StatusIcon({ status, size = 14 }: { status: TaskStatus; size?: n
   const circ = 2 * Math.PI * r;
   return (
     <svg width={size} height={size} viewBox="0 0 14 14" aria-label={meta.label}>
-      <circle cx="7" cy="7" r={r} fill="none" stroke={c} strokeWidth="1.5" opacity="0.35" />
+      <circle cx="7" cy="7" r={r} fill="none" stroke={c} strokeWidth="1.5" opacity={pct > 0 ? 0.35 : 0.9} />
       {pct > 0 && (
         <circle
           cx="7" cy="7" r={r} fill="none" stroke={c} strokeWidth="3"

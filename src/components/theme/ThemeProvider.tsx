@@ -28,8 +28,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
 export const useTheme = () => useContext(ThemeCtx);
 
-/** Inline script to set the theme before paint and avoid a flash. */
+/** Inline script to set the theme before paint and avoid a flash. Supports a ?theme= override. */
 export function ThemeScript() {
-  const js = `(function(){try{var t=localStorage.getItem('sd-theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();`;
+  const js = `(function(){try{var q=new URLSearchParams(location.search).get('theme');var t=(q==='light'||q==='dark')?q:(localStorage.getItem('sd-theme')||'dark');if(q)localStorage.setItem('sd-theme',t);document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();`;
   return <script dangerouslySetInnerHTML={{ __html: js }} />;
 }

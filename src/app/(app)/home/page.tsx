@@ -29,8 +29,10 @@ export default function HomePage() {
     .sort((a, b) => (a.dueDate! < b.dueDate! ? -1 : 1))
     .slice(0, 4);
 
-  const hour = 9;
+  const now = new Date();
+  const hour = now.getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+  const today = now.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
 
   return (
     <>
@@ -39,7 +41,8 @@ export default function HomePage() {
         <div className="mx-auto max-w-5xl px-6 py-6">
           {/* Welcome */}
           <div className="mb-6">
-            <h1 className="text-2xl font-semibold tracking-tight">{greeting}, {user.name.split(" ")[0]}</h1>
+            <p className="text-xs font-medium uppercase tracking-wider text-fg-subtle" suppressHydrationWarning>{today}</p>
+            <h1 className="mt-1 text-2xl font-semibold tracking-tight" suppressHydrationWarning>{greeting}, {user.name.split(" ")[0]}</h1>
             <p className="mt-1 text-sm text-fg-muted">
               You have <span className="font-medium text-fg">{myTasks.filter((t) => t.status !== "DONE").length} open tasks</span> and{" "}
               <span className="font-medium text-fg">{blockers.length} blocker{blockers.length !== 1 ? "s" : ""}</span> in {activeSprint.name}.
@@ -163,7 +166,7 @@ function QuickAction({ icon, label, href, onClick }: { icon: React.ReactNode; la
 function Stat({ label, value, accent }: { label: string; value: string; accent?: string }) {
   return (
     <div className="rounded-md bg-bg-subtle py-2">
-      <div className="text-base font-semibold" style={accent ? { color: accent } : undefined}>{value}</div>
+      <div className="text-base font-semibold tabular-nums" style={accent ? { color: accent } : undefined}>{value}</div>
       <div className="text-[10px] uppercase tracking-wide text-fg-subtle">{label}</div>
     </div>
   );

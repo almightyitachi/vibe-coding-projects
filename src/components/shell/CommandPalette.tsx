@@ -127,6 +127,11 @@ export function CommandPalette() {
             </div>
           ))}
         </div>
+        <div className="flex items-center gap-4 border-t border-border bg-bg-subtle px-4 py-2 text-[11px] text-fg-subtle">
+          <span className="flex items-center gap-1.5"><Kbd>↑</Kbd><Kbd>↓</Kbd> Navigate</span>
+          <span className="flex items-center gap-1.5"><Kbd>↵</Kbd> Open</span>
+          <span className="ml-auto flex items-center gap-1.5"><Kbd>c</Kbd> New task</span>
+        </div>
       </div>
     </div>
   );

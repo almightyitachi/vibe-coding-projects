@@ -97,7 +97,7 @@ export default function ProjectDetail({ params }: { params: Promise<{ id: string
           <div className="h-full overflow-y-auto p-4">
             <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2 lg:grid-cols-3">
               {projectDocs.map((d) => (
-                <Link key={d.id} href={`/docs/${d.id}`}>
+                <Link key={d.id} href={`/docs/${d.id}`} className="block h-full">
                   <Card hover className="flex h-full flex-col p-4">
                     <div className="mb-2 text-2xl">{d.icon}</div>
                     <h3 className="mb-1 text-sm font-medium">{d.title}</h3>

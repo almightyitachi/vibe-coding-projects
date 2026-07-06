@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Layers } from "lucide-react";
 import { Topbar } from "@/components/shell/Topbar";
 import { PageHeader, Card, AvatarStack, Badge, ProgressBar } from "@/components/ui/primitives";
-import { projects, sprints, tasks, userById } from "@/lib/mock-data";
+import { projects, sprints, tasks } from "@/lib/mock-data";
 import { PROJECT_STATUS_META } from "@/lib/domain";
 import { shortDate } from "@/lib/utils";
 
@@ -16,12 +16,11 @@ export default function ProjectsPage() {
         <PageHeader title="Projects" subtitle="Top-level containers for features, sprints and documentation." icon={<Layers size={18} />} />
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
           {projects.map((p) => {
-            const owner = userById(p.ownerId);
             const meta = PROJECT_STATUS_META[p.status];
             const projectSprints = sprints.filter((s) => s.projectId === p.id);
             const openTasks = tasks.filter((t) => t.projectId === p.id && t.status !== "DONE").length;
             return (
-              <Link key={p.id} href={`/projects/${p.id}`}>
+              <Link key={p.id} href={`/projects/${p.id}`} className="block h-full">
                 <Card hover className="flex h-full flex-col p-4">
                   <div className="mb-2 flex items-center justify-between">
                     <div className="flex items-center gap-2">

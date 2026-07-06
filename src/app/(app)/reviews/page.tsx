@@ -31,7 +31,7 @@ export default function ReviewsPage() {
           </div>
         }
       />
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-y-auto">
         <div className="px-6 pt-6">
           <PageHeader title="Design Reviews" subtitle="Structured review and approval for every design deliverable." icon={<GitPullRequestArrow size={18} />} />
         </div>

@@ -1,3 +1,5 @@
+"use client";
+
 import { MessageSquare, Figma } from "lucide-react";
 import type { Task } from "@/lib/types";
 import { Avatar, Badge } from "@/components/ui/primitives";
@@ -5,11 +7,16 @@ import { PriorityIcon, StatusIcon } from "@/components/ui/indicators";
 import { DESIGN_STAGE_META } from "@/lib/domain";
 import { shortDate } from "@/lib/utils";
 import { projectById } from "@/lib/mock-data";
+import { useUIStore } from "@/hooks/useUIStore";
 
 export function TaskRow({ task, showProject }: { task: Task; showProject?: boolean }) {
+  const { setSelectedTaskId } = useUIStore();
   const project = projectById(task.projectId);
   return (
-    <div className="group flex items-center gap-3 border-b border-border px-3 py-2 transition-colors last:border-b-0 hover:bg-bg-hover">
+    <div
+      onClick={() => setSelectedTaskId(task.id)}
+      className="group flex cursor-pointer items-center gap-3 border-b border-border px-3 py-2 transition-colors last:border-b-0 hover:bg-bg-hover"
+    >
       <PriorityIcon priority={task.priority} />
       <StatusIcon status={task.status} />
       <span className="w-16 shrink-0 truncate text-xs font-medium text-fg-subtle">{task.id}</span>

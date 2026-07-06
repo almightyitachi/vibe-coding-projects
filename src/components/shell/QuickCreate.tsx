@@ -17,16 +17,15 @@ const PRIORITIES: Priority[] = ["URGENT", "HIGH", "MEDIUM", "LOW"];
  * confirmation; wired to POST /tasks in production. Opens with `c`.
  */
 export function QuickCreate() {
-  const { createOpen, setCreateOpen } = useUIStore();
+  const { createOpen, setCreateOpen, pushToast } = useUIStore();
   const [title, setTitle] = useState("");
   const [projectId, setProjectId] = useState(projects[0].id);
   const [priority, setPriority] = useState<Priority>("MEDIUM");
-  const [saved, setSaved] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (createOpen) {
-      setTitle(""); setSaved(false);
+      setTitle("");
       setTimeout(() => inputRef.current?.focus(), 10);
     }
   }, [createOpen]);
@@ -41,8 +40,9 @@ export function QuickCreate() {
 
   const submit = () => {
     if (!title.trim()) return;
-    setSaved(true);
-    setTimeout(() => setCreateOpen(false), 800);
+    const project = projects.find((p) => p.id === projectId);
+    setCreateOpen(false);
+    pushToast(`Task created in ${project?.name ?? "project"}`);
   };
 
   return (
@@ -92,7 +92,7 @@ export function QuickCreate() {
         </div>
         <div className="flex items-center justify-between border-t border-border bg-bg-subtle px-4 py-2.5">
           <span className="text-xs text-fg-subtle">
-            {saved ? "✓ Task created" : <>Press <Kbd>⌘</Kbd> <Kbd>↵</Kbd> to create</>}
+            Press <Kbd>⌘</Kbd> <Kbd>↵</Kbd> to create
           </span>
           <Button variant="primary" size="sm" onClick={submit}>Create task</Button>
         </div>

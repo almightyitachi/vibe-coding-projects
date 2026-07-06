@@ -4,6 +4,8 @@ import { ThemeProvider, ThemeScript } from "@/components/theme/ThemeProvider";
 import { UIStoreProvider } from "@/hooks/useUIStore";
 import { CommandPalette } from "@/components/shell/CommandPalette";
 import { QuickCreate } from "@/components/shell/QuickCreate";
+import { TaskPanel } from "@/components/board/TaskPanel";
+import { Toaster } from "@/components/ui/Toaster";
 
 export const metadata: Metadata = {
   title: "SprintDesk — Design Operating System",
@@ -29,6 +31,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             {children}
             <CommandPalette />
             <QuickCreate />
+            <TaskPanel />
+            <Toaster />
           </UIStoreProvider>
         </ThemeProvider>
       </body>

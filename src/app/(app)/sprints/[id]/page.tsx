@@ -1,22 +1,43 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useCallback, useState } from "react";
 import { notFound } from "next/navigation";
-import { Kanban, List, Activity as ActivityIcon } from "lucide-react";
+import { Kanban, List, Activity as ActivityIcon, ListFilter, X } from "lucide-react";
 import { Topbar } from "@/components/shell/Topbar";
 import { Breadcrumb, Card, Badge, ProgressBar, Avatar, AvatarStack } from "@/components/ui/primitives";
+import { PriorityIcon } from "@/components/ui/indicators";
 import { Board } from "@/components/board/Board";
 import { TaskRow } from "@/components/board/TaskRow";
 import { Burndown } from "@/components/board/Burndown";
 import { sprintById, projectById, tasks, userById } from "@/lib/mock-data";
-import { SPRINT_STATUS_META } from "@/lib/domain";
+import { SPRINT_STATUS_META, PRIORITY_META } from "@/lib/domain";
 import { shortDate, cn } from "@/lib/utils";
+import type { Priority, Task } from "@/lib/types";
+
+const PRIORITIES: Priority[] = ["URGENT", "HIGH", "MEDIUM", "LOW"];
 
 export default function SprintDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const sprint = sprintById(id);
   const [view, setView] = useState<"board" | "list" | "overview">("board");
+  const [assigneeFilter, setAssigneeFilter] = useState<Set<string>>(new Set());
+  const [priorityFilter, setPriorityFilter] = useState<Set<Priority>>(new Set());
+
+  const hasFilters = assigneeFilter.size > 0 || priorityFilter.size > 0;
+  const filterFn = useCallback(
+    (t: Task) =>
+      (assigneeFilter.size === 0 || (!!t.assigneeId && assigneeFilter.has(t.assigneeId))) &&
+      (priorityFilter.size === 0 || priorityFilter.has(t.priority)),
+    [assigneeFilter, priorityFilter],
+  );
+
   if (!sprint) return notFound();
+
+  const toggle = <T,>(set: Set<T>, v: T, apply: (s: Set<T>) => void) => {
+    const next = new Set(set);
+    if (next.has(v)) next.delete(v); else next.add(v);
+    apply(next);
+  };
 
   const project = projectById(sprint.projectId);
   const owner = userById(sprint.ownerId);
@@ -64,11 +85,63 @@ export default function SprintDetail({ params }: { params: Promise<{ id: string 
         </div>
       </div>
 
+      {/* Filter bar — assignees + priorities (board & list views) */}
+      {view !== "overview" && (
+        <div className="flex h-10 shrink-0 items-center gap-3 border-b border-border px-4">
+          <span className="flex items-center gap-1.5 text-xs text-fg-subtle"><ListFilter size={13} /> Filter</span>
+          <div className="flex items-center gap-1">
+            {members.map((m) => (
+              <button
+                key={m}
+                onClick={() => toggle(assigneeFilter, m, setAssigneeFilter)}
+                title={userById(m)?.name}
+                className={cn(
+                  "rounded-full p-0.5 transition-all",
+                  assigneeFilter.has(m) ? "ring-2 ring-brand" : "opacity-60 hover:opacity-100",
+                )}
+              >
+                <Avatar userId={m} size={20} />
+              </button>
+            ))}
+          </div>
+          <span className="h-4 w-px bg-border" />
+          <div className="flex items-center gap-0.5">
+            {PRIORITIES.map((p) => (
+              <button
+                key={p}
+                onClick={() => toggle(priorityFilter, p, setPriorityFilter)}
+                title={PRIORITY_META[p].label}
+                className={cn(
+                  "flex h-6 items-center gap-1 rounded-md px-1.5 text-[11px] font-medium transition-colors",
+                  priorityFilter.has(p) ? "bg-bg-active text-fg" : "text-fg-subtle hover:bg-bg-hover hover:text-fg",
+                )}
+              >
+                <PriorityIcon priority={p} size={12} />
+                <span className="hidden lg:inline">{PRIORITY_META[p].label}</span>
+              </button>
+            ))}
+          </div>
+          {hasFilters && (
+            <button
+              onClick={() => { setAssigneeFilter(new Set()); setPriorityFilter(new Set()); }}
+              className="ml-auto flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-medium text-fg-muted transition-colors hover:bg-bg-hover hover:text-fg"
+            >
+              <X size={11} /> Clear
+            </button>
+          )}
+        </div>
+      )}
+
       <div className="flex-1 overflow-hidden">
-        {view === "board" && <Board initialTasks={sprintTasks} />}
+        {view === "board" && <Board initialTasks={sprintTasks} filter={filterFn} />}
         {view === "list" && (
           <div className="h-full overflow-y-auto p-4">
-            <Card className="overflow-hidden">{sprintTasks.map((t) => <TaskRow key={t.id} task={t} />)}</Card>
+            <Card className="overflow-hidden">
+              {sprintTasks.filter(filterFn).map((t) => <TaskRow key={t.id} task={t} />)}
+              {sprintTasks.filter(filterFn).length === 0 && (
+                <div className="py-10 text-center text-xs text-fg-subtle">No tasks match the current filters.</div>
+              )}
+            </Card>
           </div>
         )}
         {view === "overview" && (
@@ -140,7 +213,7 @@ function TabBtn({ active, onClick, icon, label }: { active: boolean; onClick: ()
 function Metric({ label, value, accent }: { label: string; value: string; accent?: string }) {
   return (
     <Card className="p-4">
-      <div className="text-2xl font-semibold tracking-tight" style={accent ? { color: accent } : undefined}>{value}</div>
+      <div className="text-2xl font-semibold tracking-tight tabular-nums" style={accent ? { color: accent } : undefined}>{value}</div>
       <div className="mt-1 text-xs text-fg-subtle">{label}</div>
     </Card>
   );

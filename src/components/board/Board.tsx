@@ -10,7 +10,7 @@ import { useUIStore } from "@/hooks/useUIStore";
 import { cn } from "@/lib/utils";
 
 /** Kanban board with drag-and-drop between the six workflow columns. */
-export function Board({ initialTasks }: { initialTasks: Task[] }) {
+export function Board({ initialTasks, filter }: { initialTasks: Task[]; filter?: (t: Task) => boolean }) {
   const [tasks, setTasks] = useState(initialTasks);
   const [dragId, setDragId] = useState<string | null>(null);
   const [overCol, setOverCol] = useState<TaskStatus | null>(null);
@@ -19,9 +19,12 @@ export function Board({ initialTasks }: { initialTasks: Task[] }) {
   const byStatus = useMemo(() => {
     const map = new Map<TaskStatus, Task[]>();
     STATUS_ORDER.forEach((s) => map.set(s, []));
-    tasks.forEach((t) => map.get(t.status)?.push(t));
+    tasks.forEach((t) => {
+      if (filter && !filter(t)) return;
+      map.get(t.status)?.push(t);
+    });
     return map;
-  }, [tasks]);
+  }, [tasks, filter]);
 
   const drop = (status: TaskStatus) => {
     if (!dragId) return;
@@ -67,8 +70,11 @@ export function Board({ initialTasks }: { initialTasks: Task[] }) {
                 </div>
               ))}
               {list.length === 0 && (
-                <div className="rounded-lg border border-dashed border-border py-6 text-center text-xs text-fg-subtle">
-                  Drop here
+                <div className={cn(
+                  "rounded-lg py-6 text-center text-xs text-fg-subtle transition-colors",
+                  dragId ? "border border-dashed border-border-strong" : "border border-dashed border-transparent",
+                )}>
+                  {dragId ? "Drop here" : "No tasks"}
                 </div>
               )}
             </div>

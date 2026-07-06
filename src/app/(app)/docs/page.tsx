@@ -46,7 +46,7 @@ export default function DocsPage() {
             const project = projectById(d.projectId);
             const author = userById(d.authorId);
             return (
-              <Link key={d.id} href={`/docs/${d.id}`}>
+              <Link key={d.id} href={`/docs/${d.id}`} className="block h-full">
                 <Card hover className="flex h-full flex-col p-4">
                   <div className="mb-2 flex items-start justify-between">
                     <span className="text-2xl">{d.icon}</span>

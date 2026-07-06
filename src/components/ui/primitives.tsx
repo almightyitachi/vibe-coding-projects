@@ -77,7 +77,7 @@ type ButtonProps = {
   type?: "button" | "submit";
 };
 export function Button({ children, variant = "secondary", size = "md", className, onClick, type = "button" }: ButtonProps) {
-  const base = "inline-flex items-center justify-center gap-1.5 rounded-md font-medium transition-all duration-150 focus-ring disabled:opacity-50 select-none";
+  const base = "inline-flex items-center justify-center gap-1.5 rounded-md font-medium transition-all duration-150 focus-ring disabled:opacity-50 select-none active:scale-[0.98]";
   const sizes = { sm: "h-7 px-2.5 text-xs", md: "h-8 px-3 text-sm" };
   const variants = {
     primary: "bg-brand text-white hover:bg-brand-hover shadow-sm",

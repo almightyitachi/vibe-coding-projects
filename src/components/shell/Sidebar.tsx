@@ -116,7 +116,13 @@ export function Sidebar() {
 
 function NavLink({
   href, label, icon: Icon, badge, active,
-}: { href: string; label: string; icon: React.ComponentType<{ size?: number }>; badge?: number; active: boolean }) {
+}: {
+  href: string;
+  label: string;
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+  badge?: number;
+  active: boolean;
+}) {
   return (
     <Link
       href={href}
@@ -125,7 +131,7 @@ function NavLink({
         active ? "bg-bg-active text-fg" : "text-fg-muted hover:bg-bg-hover hover:text-fg",
       )}
     >
-      <Icon size={16} />
+      <Icon size={16} className={cn("transition-colors", active && "text-brand")} />
       <span className="flex-1">{label}</span>
       {badge ? (
         <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-brand px-1 text-[10px] font-semibold text-white">{badge}</span>

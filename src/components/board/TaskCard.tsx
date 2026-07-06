@@ -7,14 +7,17 @@ import { PriorityIcon } from "@/components/ui/indicators";
 import { DESIGN_STAGE_META } from "@/lib/domain";
 import { tagById } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
+import { useUIStore } from "@/hooks/useUIStore";
 
 export function TaskCard({
   task, onDragStart, dense,
 }: { task: Task; onDragStart?: (e: React.DragEvent) => void; dense?: boolean }) {
+  const { setSelectedTaskId } = useUIStore();
   return (
     <div
       draggable={!!onDragStart}
       onDragStart={onDragStart}
+      onClick={() => setSelectedTaskId(task.id)}
       className={cn(
         "group cursor-pointer rounded-lg border border-border bg-bg-elevated p-3 shadow-sm transition-all duration-150",
         "hover:border-border-strong hover:shadow-md active:cursor-grabbing",
