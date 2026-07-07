@@ -7,6 +7,7 @@ import { PageHeader, Card, Avatar, Badge, Button } from "@/components/ui/primiti
 import { users } from "@/lib/mock-data";
 import { useTheme } from "@/components/theme/ThemeProvider";
 import { useTasks } from "@/hooks/useTaskStore";
+import { useWorkspace } from "@/hooks/useWorkspaceStore";
 import { useUIStore } from "@/hooks/useUIStore";
 import { cn } from "@/lib/utils";
 import type { Role } from "@/lib/types";
@@ -41,6 +42,7 @@ export default function SettingsPage() {
   const [tab, setTab] = useState<Tab>("Workspace");
   const { theme, toggle } = useTheme();
   const { resetDemo } = useTasks();
+  const { resetWorkspace } = useWorkspace();
   const { pushToast } = useUIStore();
   const roles: Role[] = ["ADMIN", "DESIGN_LEAD", "DESIGNER", "VIEWER"];
 
@@ -72,9 +74,9 @@ export default function SettingsPage() {
                 <div className="mt-6 flex items-center justify-between rounded-lg border border-border p-3">
                   <div>
                     <div className="text-sm font-medium">Demo data</div>
-                    <div className="text-xs text-fg-subtle">Restore the original sample tasks (discards your local changes).</div>
+                    <div className="text-xs text-fg-subtle">Restore the original sample tasks, sprints, docs and reviews (discards your local changes).</div>
                   </div>
-                  <Button size="sm" onClick={() => { resetDemo(); pushToast("Demo data restored"); }}>Reset tasks</Button>
+                  <Button size="sm" onClick={() => { resetDemo(); resetWorkspace(); pushToast("Demo data restored"); }}>Reset demo data</Button>
                 </div>
               </Card>
             )}

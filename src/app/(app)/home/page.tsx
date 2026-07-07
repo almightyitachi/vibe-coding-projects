@@ -1,29 +1,31 @@
 "use client";
 
 import Link from "next/link";
+import { useRef } from "react";
 import { Zap, Plus, FileText, Upload, Calendar } from "lucide-react";
 import { Topbar } from "@/components/shell/Topbar";
 import { Card, Avatar, Badge, ProgressBar, SectionTitle } from "@/components/ui/primitives";
 import { StatusIcon } from "@/components/ui/indicators";
 import { TaskRow } from "@/components/board/TaskRow";
-import {
-  sprints, activity, userById, CURRENT_USER_ID,
-} from "@/lib/mock-data";
+import { activity, userById, CURRENT_USER_ID } from "@/lib/mock-data";
 import { STATUS_META } from "@/lib/domain";
 import { relativeTime, shortDate } from "@/lib/utils";
 import { useUIStore } from "@/hooks/useUIStore";
 import { useTasks } from "@/hooks/useTaskStore";
+import { useWorkspace } from "@/hooks/useWorkspaceStore";
 import type { Task, TaskStatus } from "@/lib/types";
 
 export default function HomePage() {
-  const { setCreateOpen } = useUIStore();
+  const { setCreateOpen, setSprintModalOpen, setDocModalOpen, pushToast } = useUIStore();
   const { tasks } = useTasks();
+  const { sprints } = useWorkspace();
+  const fileRef = useRef<HTMLInputElement>(null);
   const user = userById(CURRENT_USER_ID)!;
   const myTasks = tasks.filter((t) => t.assigneeId === CURRENT_USER_ID);
-  const activeSprint = sprints.find((s) => s.status === "ACTIVE")!;
-  const sprintTasks = tasks.filter((t) => t.sprintId === activeSprint.id);
+  const activeSprint = sprints.find((s) => s.status === "ACTIVE");
+  const sprintTasks = activeSprint ? tasks.filter((t) => t.sprintId === activeSprint.id) : [];
   const done = sprintTasks.filter((t) => t.status === "DONE" || t.status === "APPROVED").length;
-  const completion = Math.round((done / sprintTasks.length) * 100);
+  const completion = sprintTasks.length ? Math.round((done / sprintTasks.length) * 100) : 0;
   const blockers = sprintTasks.filter((t) => t.priority === "URGENT" && t.status !== "DONE");
 
   const upcoming = tasks
@@ -46,17 +48,30 @@ export default function HomePage() {
             <p className="text-xs font-medium uppercase tracking-wider text-fg-subtle" suppressHydrationWarning>{today}</p>
             <h1 className="font-display mt-1 text-[28px] font-semibold tracking-tight" suppressHydrationWarning>{greeting}, {user.name.split(" ")[0]}</h1>
             <p className="mt-1 text-sm text-fg-muted">
-              You have <span className="font-medium text-fg">{myTasks.filter((t) => t.status !== "DONE").length} open tasks</span> and{" "}
-              <span className="font-medium text-fg">{blockers.length} blocker{blockers.length !== 1 ? "s" : ""}</span> in {activeSprint.name}.
+              You have <span className="font-medium text-fg">{myTasks.filter((t) => t.status !== "DONE").length} open tasks</span>
+              {activeSprint && (
+                <> and <span className="font-medium text-fg">{blockers.length} blocker{blockers.length !== 1 ? "s" : ""}</span> in {activeSprint.name}</>
+              )}.
             </p>
           </div>
 
           {/* Quick actions */}
           <div className="mb-6 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
             <QuickAction icon={<Plus size={16} />} label="Create Task" onClick={() => setCreateOpen(true)} />
-            <QuickAction icon={<Zap size={16} />} label="Create Sprint" href="/sprints" />
-            <QuickAction icon={<FileText size={16} />} label="Add Documentation" href="/docs" />
-            <QuickAction icon={<Upload size={16} />} label="Upload File" href="/docs" />
+            <QuickAction icon={<Zap size={16} />} label="Create Sprint" onClick={() => setSprintModalOpen(true)} />
+            <QuickAction icon={<FileText size={16} />} label="Add Documentation" onClick={() => setDocModalOpen(true)} />
+            <QuickAction icon={<Upload size={16} />} label="Upload File" onClick={() => fileRef.current?.click()} />
+            <input
+              ref={fileRef}
+              type="file"
+              className="hidden"
+              aria-hidden
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) pushToast(`“${f.name}” uploaded to Documentation`);
+                e.target.value = "";
+              }}
+            />
           </div>
 
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
@@ -71,23 +86,32 @@ export default function HomePage() {
               {/* Sprint health */}
               <div>
                 <SectionTitle>Sprint Health</SectionTitle>
-                <Card className="p-4">
-                  <div className="mb-1 flex items-center justify-between">
-                    <Link href={`/sprints/${activeSprint.id}`} className="text-sm font-medium hover:text-brand">{activeSprint.name}</Link>
-                    <Badge color="#30a46c">Active</Badge>
-                  </div>
-                  <p className="mb-3 text-xs text-fg-muted line-clamp-2">{activeSprint.goal}</p>
-                  <div className="mb-1 flex items-center justify-between text-xs">
-                    <span className="text-fg-muted">Completion</span>
-                    <span className="font-medium">{completion}%</span>
-                  </div>
-                  <ProgressBar value={completion} color="#30a46c" />
-                  <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-                    <Stat label="Remaining" value={`${sprintTasks.length - done}`} />
-                    <Stat label="Blockers" value={`${blockers.length}`} accent={blockers.length ? "#e5484d" : undefined} />
-                    <Stat label="Velocity" value={`${activeSprint.velocity}`} />
-                  </div>
-                </Card>
+                {activeSprint ? (
+                  <Card className="p-4">
+                    <div className="mb-1 flex items-center justify-between">
+                      <Link href={`/sprints/${activeSprint.id}`} className="text-sm font-medium hover:text-brand">{activeSprint.name}</Link>
+                      <Badge color="var(--success)">Active</Badge>
+                    </div>
+                    <p className="mb-3 text-xs text-fg-muted line-clamp-2">{activeSprint.goal}</p>
+                    <div className="mb-1 flex items-center justify-between text-xs">
+                      <span className="text-fg-muted">Completion</span>
+                      <span className="font-medium tabular-nums">{completion}%</span>
+                    </div>
+                    <ProgressBar value={completion} color="var(--success)" />
+                    <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+                      <Stat label="Remaining" value={`${sprintTasks.length - done}`} />
+                      <Stat label="Blockers" value={`${blockers.length}`} accent={blockers.length ? "#bf4a2e" : undefined} />
+                      <Stat label="Velocity" value={`${activeSprint.velocity}`} />
+                    </div>
+                  </Card>
+                ) : (
+                  <Card className="p-4 text-center">
+                    <p className="text-sm text-fg-muted">No active sprint.</p>
+                    <button onClick={() => setSprintModalOpen(true)} className="mt-2 text-xs font-medium text-brand hover:underline">
+                      Start a sprint →
+                    </button>
+                  </Card>
+                )}
               </div>
 
               {/* Upcoming deadlines */}

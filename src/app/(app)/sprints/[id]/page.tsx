@@ -4,22 +4,27 @@ import { use, useCallback, useState } from "react";
 import { notFound } from "next/navigation";
 import { Kanban, List, Activity as ActivityIcon, ListFilter, X } from "lucide-react";
 import { Topbar } from "@/components/shell/Topbar";
-import { Breadcrumb, Card, Badge, ProgressBar, Avatar, AvatarStack } from "@/components/ui/primitives";
+import { Breadcrumb, Card, ProgressBar, Avatar, AvatarStack } from "@/components/ui/primitives";
 import { PriorityIcon } from "@/components/ui/indicators";
 import { Board } from "@/components/board/Board";
 import { TaskRow } from "@/components/board/TaskRow";
 import { Burndown } from "@/components/board/Burndown";
-import { sprintById, projectById, userById } from "@/lib/mock-data";
+import { projectById, userById } from "@/lib/mock-data";
 import { useTasks } from "@/hooks/useTaskStore";
+import { useWorkspace } from "@/hooks/useWorkspaceStore";
+import { useUIStore } from "@/hooks/useUIStore";
 import { SPRINT_STATUS_META, PRIORITY_META } from "@/lib/domain";
 import { shortDate, cn } from "@/lib/utils";
-import type { Priority, Task } from "@/lib/types";
+import type { Priority, SprintStatus, Task } from "@/lib/types";
 
 const PRIORITIES: Priority[] = ["URGENT", "HIGH", "MEDIUM", "LOW"];
+const SPRINT_STATES: SprintStatus[] = ["PLANNING", "ACTIVE", "REVIEW", "COMPLETED", "ARCHIVED"];
 
 export default function SprintDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const sprint = sprintById(id);
+  const { sprints, updateSprint, hydrated } = useWorkspace();
+  const { pushToast } = useUIStore();
+  const sprint = sprints.find((s) => s.id === id);
   const { tasks } = useTasks();
   const [view, setView] = useState<"board" | "list" | "overview">("board");
   const [assigneeFilter, setAssigneeFilter] = useState<Set<string>>(new Set());
@@ -33,7 +38,12 @@ export default function SprintDetail({ params }: { params: Promise<{ id: string 
     [assigneeFilter, priorityFilter],
   );
 
-  if (!sprint) return notFound();
+  // New sprints only exist in localStorage, which loads after hydration —
+  // wait for it before declaring the id missing (a hard notFound would 404 on reload).
+  if (!sprint) {
+    if (!hydrated) return null;
+    return notFound();
+  }
 
   const toggle = <T,>(set: Set<T>, v: T, apply: (s: Set<T>) => void) => {
     const next = new Set(set);
@@ -70,7 +80,21 @@ export default function SprintDetail({ params }: { params: Promise<{ id: string 
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <h1 className="truncate text-base font-semibold">{sprint.name}</h1>
-            <Badge color={meta.color}>{meta.label}</Badge>
+            <select
+              value={sprint.status}
+              onChange={(e) => {
+                const next = e.target.value as SprintStatus;
+                updateSprint(sprint.id, { status: next });
+                pushToast(`Sprint moved to ${SPRINT_STATUS_META[next].label}`);
+              }}
+              aria-label="Sprint status"
+              className="h-6 cursor-pointer rounded-full border-0 pl-2 pr-6 text-xs font-medium outline-none focus-ring"
+              style={{ color: meta.color, background: `color-mix(in srgb, ${meta.color} 12%, transparent)` }}
+            >
+              {SPRINT_STATES.map((s) => (
+                <option key={s} value={s}>{SPRINT_STATUS_META[s].label}</option>
+              ))}
+            </select>
             <span className="text-xs text-fg-subtle">{project?.name}</span>
           </div>
           <p className="mt-0.5 truncate text-xs text-fg-muted">🎯 {sprint.goal}</p>

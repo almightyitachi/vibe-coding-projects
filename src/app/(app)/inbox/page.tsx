@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   Inbox as InboxIcon, AtSign, UserPlus, RefreshCw, Zap, GitPullRequestArrow, MessageSquare, Check,
@@ -20,9 +20,28 @@ const ICONS: Record<NotificationKind, React.ComponentType<{ size?: number }>> = 
   COMMENT: MessageSquare,
 };
 
+const READ_KEY = "sd-inbox-read-v1";
+
 export default function InboxPage() {
   const [items, setItems] = useState(seed);
   const [tab, setTab] = useState<"all" | "unread">("all");
+
+  // Persist read state across reloads.
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(READ_KEY);
+      if (raw) {
+        const readIds: string[] = JSON.parse(raw);
+        setItems((prev) => prev.map((n) => (readIds.includes(n.id) ? { ...n, read: true } : n)));
+      }
+    } catch { /* keep seed */ }
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(READ_KEY, JSON.stringify(items.filter((n) => n.read).map((n) => n.id)));
+    } catch { /* noop */ }
+  }, [items]);
   const shown = tab === "unread" ? items.filter((n) => !n.read) : items;
   const unread = items.filter((n) => !n.read).length;
 

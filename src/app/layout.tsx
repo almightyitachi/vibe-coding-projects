@@ -3,8 +3,11 @@ import "./globals.css";
 import { ThemeProvider, ThemeScript } from "@/components/theme/ThemeProvider";
 import { UIStoreProvider } from "@/hooks/useUIStore";
 import { TasksProvider } from "@/hooks/useTaskStore";
+import { WorkspaceProvider } from "@/hooks/useWorkspaceStore";
 import { CommandPalette } from "@/components/shell/CommandPalette";
 import { QuickCreate } from "@/components/shell/QuickCreate";
+import { SprintCreate } from "@/components/shell/SprintCreate";
+import { DocCreate } from "@/components/shell/DocCreate";
 import { TaskPanel } from "@/components/board/TaskPanel";
 import { Toaster } from "@/components/ui/Toaster";
 
@@ -30,11 +33,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ThemeProvider>
           <UIStoreProvider>
             <TasksProvider>
-              {children}
-              <CommandPalette />
-              <QuickCreate />
-              <TaskPanel />
-              <Toaster />
+              <WorkspaceProvider>
+                {children}
+                <CommandPalette />
+                <QuickCreate />
+                <SprintCreate />
+                <DocCreate />
+                <TaskPanel />
+                <Toaster />
+              </WorkspaceProvider>
             </TasksProvider>
           </UIStoreProvider>
         </ThemeProvider>

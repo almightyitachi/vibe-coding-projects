@@ -1,21 +1,30 @@
 "use client";
 
 import Link from "next/link";
-import { Zap, ArrowRight } from "lucide-react";
+import { Zap, ArrowRight, Plus } from "lucide-react";
 import { Topbar } from "@/components/shell/Topbar";
-import { PageHeader, Card, Badge, ProgressBar, Avatar } from "@/components/ui/primitives";
-import { sprints, projectById, userById } from "@/lib/mock-data";
+import { PageHeader, Card, Badge, ProgressBar, Avatar, Button } from "@/components/ui/primitives";
+import { projectById, userById } from "@/lib/mock-data";
 import { useTasks } from "@/hooks/useTaskStore";
+import { useWorkspace } from "@/hooks/useWorkspaceStore";
+import { useUIStore } from "@/hooks/useUIStore";
 import { SPRINT_STATUS_META } from "@/lib/domain";
 import { shortDate } from "@/lib/utils";
 
 export default function SprintsPage() {
   const { tasks } = useTasks();
+  const { sprints } = useWorkspace();
+  const { setSprintModalOpen } = useUIStore();
   return (
     <>
       <Topbar left={<span className="text-sm font-medium">Sprints</span>} />
       <div className="flex-1 overflow-y-auto px-6 py-6">
-        <PageHeader title="Sprints" subtitle="Time-boxed design cycles across all projects." icon={<Zap size={18} />} />
+        <PageHeader
+          title="Sprints"
+          subtitle="Time-boxed design cycles across all projects."
+          icon={<Zap size={18} />}
+          actions={<Button variant="primary" size="sm" onClick={() => setSprintModalOpen(true)}><Plus size={14} /> New sprint</Button>}
+        />
         <div className="space-y-2.5">
           {sprints.map((s) => {
             const project = projectById(s.projectId);

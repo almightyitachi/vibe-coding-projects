@@ -25,6 +25,10 @@ interface UIState {
   createOpen: boolean;
   createDefaults: CreateDefaults | null;
   setCreateOpen: (v: boolean, defaults?: CreateDefaults) => void;
+  sprintModalOpen: boolean;
+  setSprintModalOpen: (v: boolean) => void;
+  docModalOpen: boolean;
+  setDocModalOpen: (v: boolean) => void;
   selectedTaskId: string | null;
   setSelectedTaskId: (id: string | null) => void;
   toasts: Toast[];
@@ -37,6 +41,8 @@ export function UIStoreProvider({ children }: { children: ReactNode }) {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [createOpen, setCreateOpenRaw] = useState(false);
   const [createDefaults, setCreateDefaults] = useState<CreateDefaults | null>(null);
+  const [sprintModalOpen, setSprintModalOpen] = useState(false);
+  const [docModalOpen, setDocModalOpen] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const toastId = useRef(0);
@@ -72,6 +78,8 @@ export function UIStoreProvider({ children }: { children: ReactNode }) {
       value={{
         paletteOpen, setPaletteOpen,
         createOpen, createDefaults, setCreateOpen,
+        sprintModalOpen, setSprintModalOpen,
+        docModalOpen, setDocModalOpen,
         selectedTaskId, setSelectedTaskId,
         toasts, pushToast,
       }}

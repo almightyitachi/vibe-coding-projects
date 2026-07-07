@@ -4,10 +4,13 @@ import { useState } from "react";
 import { GitPullRequestArrow, CheckCircle2, MessageSquare, Figma } from "lucide-react";
 import { Topbar } from "@/components/shell/Topbar";
 import { PageHeader, Card, Badge, Avatar, AvatarStack, ProgressBar } from "@/components/ui/primitives";
-import { reviews, projectById, userById, taskById } from "@/lib/mock-data";
+import { projectById, userById } from "@/lib/mock-data";
+import { useWorkspace } from "@/hooks/useWorkspaceStore";
+import { useTasks } from "@/hooks/useTaskStore";
+import { useUIStore } from "@/hooks/useUIStore";
 import { REVIEW_STATUS_META } from "@/lib/domain";
 import { relativeTime, cn } from "@/lib/utils";
-import type { ReviewStatus } from "@/lib/types";
+import type { Review, ReviewStatus } from "@/lib/types";
 
 const COLS: { status: ReviewStatus; label: string }[] = [
   { status: "DRAFT", label: "Draft" },
@@ -19,6 +22,7 @@ const COLS: { status: ReviewStatus; label: string }[] = [
 
 export default function ReviewsPage() {
   const [layout, setLayout] = useState<"board" | "list">("board");
+  const { reviews } = useWorkspace();
 
   return (
     <>
@@ -49,7 +53,7 @@ export default function ReviewsPage() {
                     <span className="text-xs text-fg-subtle">{list.length}</span>
                   </div>
                   <div className="space-y-2.5">
-                    {list.map((r) => <ReviewCard key={r.id} id={r.id} />)}
+                    {list.map((r) => <ReviewCard key={r.id} review={r} />)}
                     {list.length === 0 && <div className="rounded-lg border border-dashed border-border py-6 text-center text-xs text-fg-subtle">Empty</div>}
                   </div>
                 </div>
@@ -81,11 +85,15 @@ export default function ReviewsPage() {
   );
 }
 
-function ReviewCard({ id }: { id: string }) {
-  const r = reviews.find((x) => x.id === id)!;
+const REVIEW_STATES: ReviewStatus[] = ["DRAFT", "READY", "CHANGES_REQUESTED", "APPROVED", "CLOSED"];
+
+function ReviewCard({ review: r }: { review: Review }) {
+  const { updateReview } = useWorkspace();
+  const { pushToast } = useUIStore();
+  const { tasks } = useTasks();
   const meta = REVIEW_STATUS_META[r.status];
   const project = projectById(r.projectId);
-  const task = r.taskId ? taskById(r.taskId) : undefined;
+  const task = r.taskId ? tasks.find((t) => t.id === r.taskId) : undefined;
   const total = r.openThreads + r.resolvedThreads;
   const resolvedPct = total ? (r.resolvedThreads / total) * 100 : 0;
 
@@ -115,7 +123,21 @@ function ReviewCard({ id }: { id: string }) {
         </>
       )}
       <div className="mt-3 flex items-center justify-between">
-        <Badge color={meta.color}>{meta.label}</Badge>
+        <select
+          value={r.status}
+          onChange={(e) => {
+            const next = e.target.value as ReviewStatus;
+            updateReview(r.id, { status: next });
+            pushToast(`Review moved to ${REVIEW_STATUS_META[next].label}`);
+          }}
+          aria-label="Review status"
+          className="h-6 max-w-[160px] cursor-pointer truncate rounded-full border-0 pl-2 pr-6 text-xs font-medium outline-none focus-ring"
+          style={{ color: meta.color, background: `color-mix(in srgb, ${meta.color} 12%, transparent)` }}
+        >
+          {REVIEW_STATES.map((s) => (
+            <option key={s} value={s}>{REVIEW_STATUS_META[s].label}</option>
+          ))}
+        </select>
         <div className="flex items-center gap-1.5">
           <span className="text-[11px] text-fg-subtle">Reviewers</span>
           <AvatarStack userIds={r.reviewerIds.length ? r.reviewerIds : [r.authorId]} size={18} />

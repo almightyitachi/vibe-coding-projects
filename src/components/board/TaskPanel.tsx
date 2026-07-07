@@ -5,7 +5,8 @@ import Link from "next/link";
 import { X, Figma, Play, Send, Hash, Trash2 } from "lucide-react";
 import { useUIStore } from "@/hooks/useUIStore";
 import { useTasks } from "@/hooks/useTaskStore";
-import { userById, projectById, sprintById, tagById, users } from "@/lib/mock-data";
+import { useWorkspace } from "@/hooks/useWorkspaceStore";
+import { userById, projectById, tagById, users } from "@/lib/mock-data";
 import { STATUS_META, STATUS_ORDER, PRIORITY_META, DESIGN_STAGE_META } from "@/lib/domain";
 import { StatusIcon, PriorityIcon } from "@/components/ui/indicators";
 import { Avatar, Badge } from "@/components/ui/primitives";
@@ -48,6 +49,7 @@ export function TaskPanel() {
 function PanelBody({ task, onClose }: { task: Task; onClose: () => void }) {
   const { pushToast } = useUIStore();
   const { updateTask, deleteTask } = useTasks();
+  const { sprints } = useWorkspace();
 
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description);
@@ -55,7 +57,7 @@ function PanelBody({ task, onClose }: { task: Task; onClose: () => void }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const project = projectById(task.projectId);
-  const sprint = sprintById(task.sprintId);
+  const projectSprints = sprints.filter((s) => s.projectId === task.projectId);
   const reporter = userById(task.reporterId);
 
   const commitTitle = () => {
@@ -232,13 +234,21 @@ function PanelBody({ task, onClose }: { task: Task; onClose: () => void }) {
           <Prop label="Reporter">
             <span className="flex items-center gap-1.5"><Avatar userId={reporter?.id} size={18} /> {reporter?.name}</span>
           </Prop>
-          {sprint && (
-            <Prop label="Sprint">
-              <Link href={`/sprints/${sprint.id}`} onClick={onClose} className="text-fg transition-colors hover:text-brand">
-                {sprint.name}
-              </Link>
-            </Prop>
-          )}
+          <Prop label="Sprint">
+            <select
+              value={task.sprintId ?? ""}
+              onChange={(e) => {
+                const next = e.target.value || undefined;
+                updateTask(task.id, { sprintId: next });
+                pushToast(next ? `Moved to ${sprints.find((s) => s.id === next)?.name}` : "Removed from sprint");
+              }}
+              aria-label="Sprint"
+              className="h-7 w-full max-w-[200px] rounded-md border border-border bg-bg-elevated px-2 text-xs text-fg outline-none focus-ring"
+            >
+              <option value="">No sprint</option>
+              {projectSprints.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+            </select>
+          </Prop>
           {task.module && <Prop label="Module">{task.module}</Prop>}
           {task.designStage && (
             <Prop label="Design stage">

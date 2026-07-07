@@ -8,8 +8,9 @@ import { Topbar } from "@/components/shell/Topbar";
 import { Breadcrumb, Card, AvatarStack, Badge, ProgressBar, Avatar } from "@/components/ui/primitives";
 import { Board } from "@/components/board/Board";
 import { TaskRow } from "@/components/board/TaskRow";
-import { projectById, sprints, docs, userById } from "@/lib/mock-data";
+import { projectById, userById } from "@/lib/mock-data";
 import { useTasks } from "@/hooks/useTaskStore";
+import { useWorkspace } from "@/hooks/useWorkspaceStore";
 import { PROJECT_STATUS_META, SPRINT_STATUS_META } from "@/lib/domain";
 import { shortDate, relativeTime, cn } from "@/lib/utils";
 
@@ -25,6 +26,7 @@ export default function ProjectDetail({ params }: { params: Promise<{ id: string
   const { id } = use(params);
   const project = projectById(id);
   const { tasks } = useTasks();
+  const { sprints, docs } = useWorkspace();
   const [view, setView] = useState<(typeof VIEWS)[number]["id"]>("list");
   if (!project) return notFound();
 
@@ -93,7 +95,7 @@ export default function ProjectDetail({ params }: { params: Promise<{ id: string
           </div>
         )}
         {view === "board" && <Board tasks={projectTasks} createDefaults={{ projectId: project.id }} />}
-        {view === "timeline" && <TimelineView projectId={project.id} />}
+        {view === "timeline" && <TimelineView sprints={projectSprints} />}
         {view === "calendar" && <CalendarView projectId={project.id} tasks={tasks} />}
         {view === "docs" && (
           <div className="h-full overflow-y-auto p-4">
@@ -120,8 +122,7 @@ export default function ProjectDetail({ params }: { params: Promise<{ id: string
   );
 }
 
-function TimelineView({ projectId }: { projectId: string }) {
-  const projectSprints = sprints.filter((s) => s.projectId === projectId);
+function TimelineView({ sprints: projectSprints }: { sprints: import("@/lib/types").Sprint[] }) {
   return (
     <div className="h-full overflow-y-auto p-6">
       <div className="space-y-3">

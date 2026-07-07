@@ -8,8 +8,9 @@ import {
 } from "lucide-react";
 import { useUIStore } from "@/hooks/useUIStore";
 import { useTasks } from "@/hooks/useTaskStore";
+import { useWorkspace } from "@/hooks/useWorkspaceStore";
 import { useTheme } from "@/components/theme/ThemeProvider";
-import { projects, sprints, docs, reviews } from "@/lib/mock-data";
+import { projects } from "@/lib/mock-data";
 import { Kbd } from "@/components/ui/primitives";
 import { cn } from "@/lib/utils";
 
@@ -25,6 +26,7 @@ interface Item {
 export function CommandPalette() {
   const { paletteOpen, setPaletteOpen, setCreateOpen, setSelectedTaskId } = useUIStore();
   const { tasks } = useTasks();
+  const { sprints, docs, reviews } = useWorkspace();
   const { toggle } = useTheme();
   const router = useRouter();
   const [query, setQuery] = useState("");
@@ -54,7 +56,7 @@ export function CommandPalette() {
     }));
     const rev: Item[] = reviews.map((r) => ({ id: r.id, label: r.title, hint: "Review", group: "Reviews", icon: GitPullRequestArrow, run: () => go("/reviews") }));
     return [...actions, ...proj, ...spr, ...doc, ...tsk, ...rev];
-  }, [router, setPaletteOpen, setCreateOpen, setSelectedTaskId, toggle, tasks]);
+  }, [router, setPaletteOpen, setCreateOpen, setSelectedTaskId, toggle, tasks, sprints, docs, reviews]);
 
   const filtered = useMemo(() => {
     if (!query.trim()) return items.filter((i) => i.group === "Actions" || i.group === "Navigate");

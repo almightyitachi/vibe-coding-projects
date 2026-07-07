@@ -54,9 +54,16 @@ Keyboard: `⌘K` search · `c` create task · `↑↓/↵` navigate · `⌘↵` 
 
 A warm, calm, tea-inspired visual language (steep.app-inspired): cream paper surfaces, deep tea-green brand, terracotta & amber accents, and serif display headings over an Inter UI — with a warm green-charcoal **dark mode**. All colors are semantic CSS-variable tokens mapped into Tailwind, so the whole theme lives in one file — see [`docs/06-design-system.md`](./docs/06-design-system.md).
 
-## Task management (fully functional)
+## Fully functional prototype
 
-Tasks are backed by a client-side store persisted to localStorage — create (`c`, any + button, per-column +), edit everything in the slide-over panel (title, description, status, priority, assignee, points, due date), drag between board columns, delete with confirm, and reset the demo data from Settings. All screens (Home, boards, lists, ⌘K) read the same live store.
+Everything is backed by client-side stores persisted to localStorage, so the prototype behaves like a real product across reloads. In production these stores swap 1:1 for TanStack Query mutations against the API.
+
+- **Tasks** — create (`c`, any + button, per-column + pre-fills status & sprint), edit everything in the slide-over panel (title, description, status, priority, assignee, sprint, points, due date), drag between board columns, delete with confirm.
+- **Sprints** — create from Home or /sprints (name, goal, project, dates), transition status (Planning → Active → Review → Completed → Archived) from the sprint header; boards, stats and burndown recompute live.
+- **Documentation** — create pages from eight real template scaffolds, edit in a markdown editor with live preview, save versions, delete; the library, project docs tab and ⌘K all reflect changes.
+- **Reviews** — move reviews through their state machine from the board cards.
+- **Inbox** — read state persists.
+- **Reset** — Settings → "Reset demo data" restores the original seed everywhere.
 
 ## Tech stack
 

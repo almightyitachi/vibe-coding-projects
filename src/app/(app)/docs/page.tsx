@@ -4,17 +4,18 @@ import Link from "next/link";
 import { useState } from "react";
 import { FileText, Plus } from "lucide-react";
 import { Topbar } from "@/components/shell/Topbar";
-import { PageHeader, Card, Badge, Avatar } from "@/components/ui/primitives";
-import { docs, projectById, userById } from "@/lib/mock-data";
-import { relativeTime, cn } from "@/lib/utils";
-import { Button } from "@/components/ui/primitives";
+import { PageHeader, Card, Badge, Avatar, Button } from "@/components/ui/primitives";
+import { projectById, userById } from "@/lib/mock-data";
+import { useWorkspace } from "@/hooks/useWorkspaceStore";
 import { useUIStore } from "@/hooks/useUIStore";
+import { relativeTime, cn } from "@/lib/utils";
 
-const TEMPLATES = ["All", "Design Brief", "Research", "Feature Spec", "Retrospective"];
+const TEMPLATES = ["All", "Design Brief", "Research", "Feature Spec", "Retrospective", "Meeting Notes"];
 
 export default function DocsPage() {
   const [filter, setFilter] = useState("All");
-  const { setCreateOpen } = useUIStore();
+  const { docs } = useWorkspace();
+  const { setDocModalOpen } = useUIStore();
   const filtered = filter === "All" ? docs : docs.filter((d) => d.template === filter);
 
   return (
@@ -25,7 +26,7 @@ export default function DocsPage() {
           title="Documentation"
           subtitle="The design knowledge base — briefs, research, specs and retros."
           icon={<FileText size={18} />}
-          actions={<Button variant="primary" size="sm" onClick={() => setCreateOpen(true)}><Plus size={14} /> New page</Button>}
+          actions={<Button variant="primary" size="sm" onClick={() => setDocModalOpen(true)}><Plus size={14} /> New page</Button>}
         />
 
         <div className="mb-4 flex flex-wrap gap-1.5">
@@ -65,6 +66,9 @@ export default function DocsPage() {
               </Link>
             );
           })}
+          {filtered.length === 0 && (
+            <p className="text-sm text-fg-subtle">No pages with this template yet.</p>
+          )}
         </div>
       </div>
     </>
